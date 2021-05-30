@@ -1,0 +1,8 @@
+version: "3"
+services:
+  euromillions-picker:
+    build:
+      context: ../../
+      dockerfile: ./build/ci/Dockerfile
+    image: euromillions-picker:latest
+    privileged: true
