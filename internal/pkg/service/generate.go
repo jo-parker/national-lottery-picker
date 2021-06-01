@@ -6,8 +6,14 @@ import (
 	"github.com/jpparker/euromillions-picker/internal/pkg/model"
 )
 
+const (
+	midpoint = 25
+	numLowBalls = 3
+	totalMainBalls = 5
+	totalSpecialBalls = 2
+)
+
 var count, evenCount, oddCount int = 0, 0, 0
-var midpoint, numLowBalls, totalMainBalls, totalSpecialBalls int = 25, 3, 5, 2
 
 func init() {
 	rand.Seed(time.Now().Unix())
@@ -37,6 +43,8 @@ func addMainBall(ballNumber int, t model.Ticket) *model.Ticket {
 }
 
 func GenerateTicket() model.Ticket {
+	count, evenCount, oddCount = 0, 0, 0
+
 	ticket := new(model.Ticket)
 	ticket.Init()
 

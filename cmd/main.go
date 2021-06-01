@@ -6,8 +6,10 @@ import (
 )
 
 func main() {
-	service.Test()
+	service.PlayEuromillions()
+	fmt.Println("Done generating first")
 	ticket := service.GenerateTicket()
+	fmt.Println("Done generating second")
 	mainNumbers := make([]int, 0, len(ticket.MainNumbers))
 	specialNumbers := make([]int, 0, len(ticket.SpecialNumbers))
 
