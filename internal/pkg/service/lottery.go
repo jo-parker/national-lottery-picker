@@ -4,8 +4,9 @@ import (
 	"os"
 	"fmt"
 	"github.com/tebeka/selenium"
-	"github.com/jpparker/euromillions-picker/internal/pkg/model"
 	"github.com/serge1peshcoff/selenium-go-conditions"
+	"github.com/jpparker/euromillions-picker/internal/pkg/service/utils"
+	"github.com/jpparker/euromillions-picker/internal/pkg/model"
 )
 
 const (
@@ -17,13 +18,13 @@ const (
 var seleniumPath = fmt.Sprintf("%s/selenium-server-standalone-3.141.59.jar", vendorPath)
 var geckoDriverPath = fmt.Sprintf("%s/geckodriver-v0.29.1-linux64", vendorPath)
 
-func PlayEuromillions() {
+func EnterDraw(draw model.DrawName) {
 	opts := []selenium.ServiceOption{
 		selenium.StartFrameBuffer(),           // Start an X frame buffer for the browser to run in.
 		selenium.GeckoDriver(geckoDriverPath), // Specify the path to GeckoDriver in order to use Firefox.
 		selenium.Output(os.Stderr),            // Output debug information to STDERR.
 	}
-	//selenium.SetDebug(true)
+
 	service, err := selenium.NewSeleniumService(seleniumPath, port, opts...)
 	if err != nil {
 		panic(err)
@@ -38,7 +39,7 @@ func PlayEuromillions() {
 	}
 	defer wd.Quit()
 
-	// Navigate to the simple playground interface.
+	// Navigate to the sign-in page.
 	if err := wd.Get(fmt.Sprintf("%s/sign-in", baseUrl)); err != nil {
 		panic(err)
 	}
@@ -51,67 +52,48 @@ func PlayEuromillions() {
 	if err != nil {
 		panic(err)
 	}
+	// Accept Cookies pop-up requires multiple clicks
 	elem.Click(); elem.Click(); elem.Click()
 
 	elem, _ = wd.FindElement(selenium.ByCSSSelector, ".cu_k_modal_main_box")
-	if err = wd.Wait(ElementIsNotVisible(elem)); err != nil {
+	if err = wd.Wait(utils.ElementIsNotVisible(elem)); err != nil {
 		panic(err)
 	}
 
 	SignIn(wd)
 
-	entry := GenerateTicket()
-	EnterDraw(wd, entry)
+	t := GenerateTicket(draw)
+	switch t.Draw.Name {
+	case model.Euromillions:
+		PlayEuromillions(wd, t)
+	}
 
-	SaveScreenshot(wd, "screenshot.png")
+	utils.SaveScreenshot(wd, "screenshot.png")
 }
 
-func EnterDraw(wd selenium.WebDriver, ticket model.Ticket) {
-	// Go to Euromillions game
+func PlayEuromillions(wd selenium.WebDriver, t model.Ticket) {
 	if err := wd.Get(fmt.Sprintf("%s/games/euromillions?icid=-:mm:-:mdg:em:dbg:pl:co", baseUrl)); err != nil {
 		panic(err)
 	}
+
+	utils.ClickElementByID(wd, "number_picker_initialiser_0")
+
+	for key := range t.MainNumbers {
+		utils.ClickElementByID(wd, fmt.Sprintf("pool_0_label_ball_%d", key))
+	}
+
+	for key := range t.SpecialNumbers {
+		utils.ClickElementByID(wd, fmt.Sprintf("pool_1_label_ball_%d", key))
+	}
+
+	utils.ClickElementByID(wd, "number_selection_confirm_button")
+	utils.ClickElementByID(wd, "tue_dd_label")
+	utils.ClickElementByID(wd, "weeks1")
+	utils.ClickElementByID(wd, "euromillions_playslip_confirm")
 }
 
 func SignIn(wd selenium.WebDriver) {
-	elem, err := wd.FindElement(selenium.ByID, "form_username")
-	if err != nil {
-		panic(err)
-	}
-	elem.Click()
-	elem.SendKeys("jpparker3986@hotmail.co.uk")
-
-	elem, err = wd.FindElement(selenium.ByID, "form_password")
-	if err != nil {
-		panic(err)
-	}
-	elem.Click()
-	elem.SendKeys("Agj4xaaX")
-
-	elem, err = wd.FindElement(selenium.ByID, "login_submit_bttn")
-	if err != nil {
-		panic(err)
-	}
-	elem.Click()
-}
-
-func SaveScreenshot(wd selenium.WebDriver, path string) {
-	data, err := wd.Screenshot()
-	if err != nil {
-		panic(err)
-	}
-
-	f, err := os.Create(path)
-	if err != nil {
-		panic(err)
-	}
-
-	f.Write(data)
-}
-
-func ElementIsNotVisible(elt selenium.WebElement) selenium.Condition {
-	return func(wd selenium.WebDriver) (bool, error) {
-		visible, err := elt.IsDisplayed()
-		return !visible, err
-	}
+	utils.ClickElementByIDAndSendKeys(wd, "form_username", "jpparker3986@hotmail.co.uk")
+	utils.ClickElementByIDAndSendKeys(wd, "form_password", "Agj4xaaX")
+	utils.ClickElementByID(wd, "login_submit_bttn")
 }

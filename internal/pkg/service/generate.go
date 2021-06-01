@@ -6,13 +6,6 @@ import (
 	"github.com/jpparker/euromillions-picker/internal/pkg/model"
 )
 
-const (
-	midpoint = 25
-	numLowBalls = 3
-	totalMainBalls = 5
-	totalSpecialBalls = 2
-)
-
 var count, evenCount, oddCount int = 0, 0, 0
 
 func init() {
@@ -20,8 +13,8 @@ func init() {
 }
 
 func addMainBall(ballNumber int, t model.Ticket) *model.Ticket {
-	evenAndBelowThreshold := (ballNumber % 2 == 0) && (evenCount < 3)
-	oddAndBelowThreshold := (ballNumber % 2 != 0) && (oddCount < 2)
+	evenAndBelowThreshold := (ballNumber % 2 == 0) && (evenCount < t.Draw.NumEvenBalls)
+	oddAndBelowThreshold := (ballNumber % 2 != 0) && (oddCount < t.Draw.NumMainBalls - t.Draw.NumEvenBalls)
 
 	if evenAndBelowThreshold {
 		t.MainNumbers[ballNumber] = struct{}{}
@@ -42,26 +35,28 @@ func addMainBall(ballNumber int, t model.Ticket) *model.Ticket {
 	return &t
 }
 
-func GenerateTicket() model.Ticket {
+func GenerateTicket(draw model.DrawName) model.Ticket {
 	count, evenCount, oddCount = 0, 0, 0
 
-	ticket := new(model.Ticket)
-	ticket.Init()
+	t := new(model.Ticket)
 
-	for len(ticket.MainNumbers) != numLowBalls {
-		lowBallNumber := 1 + rand.Intn(midpoint)
-		addMainBall(lowBallNumber, *ticket)
+	t.Init()
+	t.InitEuromillions()
+
+	for len(t.MainNumbers) != t.Draw.NumLowBalls {
+		lowBallNumber := 1 + rand.Intn(t.Draw.Midpoint)
+		addMainBall(lowBallNumber, *t)
 	}
 
-	for len(ticket.MainNumbers) != totalMainBalls {
-		highBallNumber := midpoint + 1 + rand.Intn(midpoint)
-		addMainBall(highBallNumber, *ticket)
+	for len(t.MainNumbers) != t.Draw.NumMainBalls {
+		highBallNumber := t.Draw.Midpoint + 1 + rand.Intn(t.Draw.Midpoint)
+		addMainBall(highBallNumber, *t)
 	}
 
-	for len(ticket.SpecialNumbers) != totalSpecialBalls {
+	for len(t.SpecialNumbers) != t.Draw.NumSpecialBalls {
 		specialBallNumber := 1 + rand.Intn(12)
-		ticket.SpecialNumbers[specialBallNumber] = struct{}{}
+		t.SpecialNumbers[specialBallNumber] = struct{}{}
 	}
 
-	return *ticket
+	return *t
 }
