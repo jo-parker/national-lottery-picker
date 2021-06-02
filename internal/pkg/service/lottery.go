@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"github.com/tebeka/selenium"
 	"github.com/serge1peshcoff/selenium-go-conditions"
-	"github.com/jpparker/euromillions-picker/internal/pkg/service/utils"
-	"github.com/jpparker/euromillions-picker/internal/pkg/model"
+	"github.com/jpparker/national-lottery-picker/internal/pkg/service/utils"
+	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
 )
 
 const (
-	vendorPath      = "/app/euromillions-picker/vendor"
+	vendorPath      = "/app/national-lottery-picker/vendor"
 	port            = 8080
 	baseUrl         = "https://www.national-lottery.co.uk/"
 )

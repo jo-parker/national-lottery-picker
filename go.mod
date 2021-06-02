@@ -1,4 +1,4 @@
-module github.com/jpparker/euromillions-picker
+module github.com/jpparker/national-lottery-picker
 
 go 1.12
 

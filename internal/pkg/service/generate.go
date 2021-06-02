@@ -3,7 +3,7 @@ package service
 import (
   "math/rand"
   "time"
-	"github.com/jpparker/euromillions-picker/internal/pkg/model"
+	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
 )
 
 var count, evenCount, oddCount int = 0, 0, 0

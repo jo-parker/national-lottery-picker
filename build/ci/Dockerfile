@@ -1,6 +1,6 @@
 FROM ubuntu:20.04
 
-WORKDIR /app/euromillions-picker
+WORKDIR /app/national-lottery-picker
 
 ENV TZ=Europe/London
 
