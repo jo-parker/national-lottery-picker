@@ -35,7 +35,7 @@ func addMainBall(ballNumber int, t model.Ticket) *model.Ticket {
 	return &t
 }
 
-func GenerateTicket(draw model.DrawName) model.Ticket {
+func GenerateTicket() model.Ticket {
 	count, evenCount, oddCount = 0, 0, 0
 
 	t := new(model.Ticket)

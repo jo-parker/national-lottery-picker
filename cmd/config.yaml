@@ -1,0 +1,8 @@
+national-lottery:
+  draw: "euromillions"
+  numberOfTickets: 1
+  days: ["tuesday", "friday"]
+  username: "username"
+  password: "password"
+app:
+  debug: true

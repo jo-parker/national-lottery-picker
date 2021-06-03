@@ -37,10 +37,3 @@ func ClickElementByID(wd selenium.WebDriver, id string) {
 	}
 	elem.Click()
 }
-
-func ElementIsNotVisible(elt selenium.WebElement) selenium.Condition {
-	return func(wd selenium.WebDriver) (bool, error) {
-		visible, err := elt.IsDisplayed()
-		return !visible, err
-	}
-}

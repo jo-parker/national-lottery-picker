@@ -11,13 +11,9 @@ type Draw struct {
 	NumSpecialBalls     int
 }
 
-type DrawName int
+type DrawName string
 
 const (
-	Euromillions DrawName = iota
-	Lotto
+	Euromillions DrawName = "euromillions"
+	Lotto DrawName = "lotto"
 )
-
-func (d DrawName) String() string {
-	return [...]string{"Euromillions", "Lotto"}[d]
-}
