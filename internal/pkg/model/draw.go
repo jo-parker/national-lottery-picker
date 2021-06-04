@@ -4,8 +4,6 @@ import ()
 
 type Draw struct {
 	Name                DrawName
-	Midpoint            int
-	NumLowBalls         int
 	NumEvenBalls        int
 	NumMainBalls        int
 	NumSpecialBalls     int

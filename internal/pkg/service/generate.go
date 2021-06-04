@@ -19,14 +19,14 @@ func addMainBall(ballNumber int, t model.Ticket) *model.Ticket {
 	if evenAndBelowThreshold {
 		t.MainNumbers[ballNumber] = struct{}{}
 
-		if count != len(t.MainNumbers) {
+		if count < len(t.MainNumbers) {
 			evenCount++
 			count++
 		}
 	} else if oddAndBelowThreshold {
 		t.MainNumbers[ballNumber] = struct{}{}
 
-		if count != len(t.MainNumbers) {
+		if count < len(t.MainNumbers) {
 			oddCount++
 			count++
 		}
@@ -41,19 +41,21 @@ func GenerateTicket() model.Ticket {
 	t := new(model.Ticket)
 
 	t.Init()
-	t.InitEuromillions()
-
-	for len(t.MainNumbers) != t.Draw.NumLowBalls {
-		lowBallNumber := 1 + rand.Intn(t.Draw.Midpoint)
-		addMainBall(lowBallNumber, *t)
+	switch t.Draw.Name{
+	case model.Euromillions:
+		t.InitEuromillions()
+	case model.Lotto:
+		t.InitLotto()
 	}
 
-	for len(t.MainNumbers) != t.Draw.NumMainBalls {
-		highBallNumber := t.Draw.Midpoint + 1 + rand.Intn(t.Draw.Midpoint)
-		addMainBall(highBallNumber, *t)
+	for len(t.MainNumbers) < t.Draw.NumMainBalls {
+		number := rand.Intn(10) + (count * 10)
+		if number != 0 {
+			addMainBall(number, *t)
+		}
 	}
 
-	for len(t.SpecialNumbers) != t.Draw.NumSpecialBalls {
+	for len(t.SpecialNumbers) < t.Draw.NumSpecialBalls {
 		specialBallNumber := 1 + rand.Intn(12)
 		t.SpecialNumbers[specialBallNumber] = struct{}{}
 	}

@@ -13,5 +13,6 @@ type Config struct {
 
 	App struct {
 		Debug           bool     `yaml:"debug"`
+		LogDir 					string 	 `yaml:"logdir"`
 	} `yaml:"app"`
 }

@@ -18,8 +18,6 @@ func (t *Ticket) Init() {
 func (t *Ticket) InitEuromillions() {
 	t.Draw = &Draw{
 		Name: Euromillions,
-		Midpoint: 25,
-		NumLowBalls: 3,
 		NumEvenBalls: 3,
 		NumMainBalls: 5,
 		NumSpecialBalls: 2,
@@ -29,8 +27,6 @@ func (t *Ticket) InitEuromillions() {
 func (t *Ticket) InitLotto() {
 	t.Draw = &Draw{
 		Name: Lotto,
-		Midpoint: 30,
-		NumLowBalls: 3,
 		NumEvenBalls: 3,
 		NumMainBalls: 6,
 		NumSpecialBalls: 0,

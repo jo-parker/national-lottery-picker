@@ -24,7 +24,7 @@ var chromeDriverPath = fmt.Sprintf("%s/chromedriver-linux64", vendorPath)
 
 func EnterDraw() {
 	opts := []selenium.ServiceOption{
-		selenium.ChromeDriver(chromeDriverPath), // Specify the path to GeckoDriver in order to use Firefox.
+		selenium.ChromeDriver(chromeDriverPath), // Specify the path to ChromeWebDriver in order to use Chrome.
 		selenium.Output(os.Stderr),            // Output debug information to STDERR.
 	}
 
@@ -39,10 +39,10 @@ func EnterDraw() {
 		"browserName": "chrome",
 	}
 	loggingCaps := log.Capabilities {
-		log.Server: log.Severe,
-		log.Browser: log.Severe,
-		log.Client: log.Severe,
-		log.Driver: log.Severe,
+		log.Server: log.Info,
+		log.Browser: log.Info,
+		log.Client: log.Info,
+		log.Driver: log.Info,
 		log.Performance: log.Off,
 		log.Profiler: log.Off,
 	}
@@ -92,7 +92,9 @@ func EnterDraw() {
 		playLotto(wd, t)
 	}
 
-	utils.SaveScreenshot(wd, "success.png")
+	if Config.App.Debug {
+		utils.SaveScreenshot(wd, "success.png")
+	}
 }
 
 func playEuromillions(wd selenium.WebDriver, t model.Ticket) {
@@ -100,7 +102,24 @@ func playEuromillions(wd selenium.WebDriver, t model.Ticket) {
 		panic(err)
 	}
 
-	// Populate ticket
+	populateInitialiser(wd, t)
+	utils.ClickElementByID(wd, "euromillions_playslip_confirm")
+
+	placeOrder(wd)
+}
+
+func playLotto(wd selenium.WebDriver, t model.Ticket) {
+	if err := wd.Get(fmt.Sprintf("%s/games/lotto?icid=-:mm:-:mdg:lo:dbg:pl:co", baseUrl)); err != nil {
+		panic(err)
+	}
+
+	populateInitialiser(wd, t)
+	utils.ClickElementByID(wd, "lotto_playslip_confirm")
+
+	placeOrder(wd)
+}
+
+func populateInitialiser(wd selenium.WebDriver, t model.Ticket) {
 	utils.ClickElementByID(wd, "number_picker_initialiser_0")
 
 	for key := range t.MainNumbers {
@@ -116,9 +135,6 @@ func playEuromillions(wd selenium.WebDriver, t model.Ticket) {
 	if _, err := wd.ExecuteScript("document.querySelector('label#weeks1',':before').click();", nil); err != nil {
 		panic(err)
 	}
-	utils.ClickElementByID(wd, "euromillions_playslip_confirm")
-
-	placeOrder(wd)
 }
 
 func placeOrder(wd selenium.WebDriver) {
@@ -137,7 +153,4 @@ func placeOrder(wd selenium.WebDriver) {
 	if !Config.App.Debug {
 		utils.ClickElementByID(wd, "confirm")
 	}
-}
-
-func playLotto(wd selenium.WebDriver, t model.Ticket) {
 }
