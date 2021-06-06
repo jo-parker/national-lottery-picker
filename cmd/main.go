@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"log"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
@@ -14,13 +15,13 @@ func main() {
 
 	configFile, err := ioutil.ReadFile(*configPtr)
 	if err != nil {
-			panic(err)
+		log.Fatalln(err)
 	}
 
 	var config model.Config
 	err = yaml.Unmarshal(configFile, &config)
 	if err != nil {
-    panic(err)
+    log.Fatalln(err)
 	}
 
 	service.Config = config

@@ -4,6 +4,8 @@ national-lottery:
   days: ["tue", "fri"]
   username: "username"
   password: "password"
+  costLimit: 5.0
 app:
   debug: true
   logdir: "/var/log/national-lottery-picker"
+  screenshotDir: "/var/tmp"

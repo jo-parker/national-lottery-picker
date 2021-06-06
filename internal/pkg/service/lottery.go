@@ -3,11 +3,12 @@ package service
 import (
 	"os"
 	"fmt"
+	"log"
 	"math"
 	"strconv"
 	"github.com/tebeka/selenium"
-	"github.com/tebeka/selenium/log"
 	"github.com/tebeka/selenium/chrome"
+	slog "github.com/tebeka/selenium/log"
 	"github.com/jpparker/national-lottery-picker/internal/pkg/service/utils"
 	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
 )
@@ -19,6 +20,7 @@ const (
 )
 
 var Config model.Config
+
 var seleniumPath = fmt.Sprintf("%s/selenium-server-standalone-3.141.59.jar", vendorPath)
 var chromeDriverPath = fmt.Sprintf("%s/chromedriver-linux64", vendorPath)
 
@@ -30,7 +32,7 @@ func EnterDraw() {
 
 	service, err := selenium.NewSeleniumService(seleniumPath, port, opts...)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	defer service.Stop()
 
@@ -38,13 +40,13 @@ func EnterDraw() {
 	caps := selenium.Capabilities{
 		"browserName": "chrome",
 	}
-	loggingCaps := log.Capabilities {
-		log.Server: log.Info,
-		log.Browser: log.Info,
-		log.Client: log.Info,
-		log.Driver: log.Info,
-		log.Performance: log.Off,
-		log.Profiler: log.Off,
+	loggingCaps := slog.Capabilities {
+		slog.Server: slog.Info,
+		slog.Browser: slog.Info,
+		slog.Client: slog.Info,
+		slog.Driver: slog.Info,
+		slog.Performance: slog.Off,
+		slog.Profiler: slog.Off,
 	}
 	chromeCaps := chrome.Capabilities {
 		Args: []string{
@@ -58,12 +60,12 @@ func EnterDraw() {
 
 	wd, err := selenium.NewRemote(caps, fmt.Sprintf("http://localhost:%d/wd/hub", port))
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	defer wd.Quit()
 
 	if err := wd.Get(baseUrl); err != nil {
-					panic(err)
+		log.Fatalln(err)
 	}
 
 	consentCookie := &selenium.Cookie {
@@ -74,11 +76,11 @@ func EnterDraw() {
 		Expiry: math.MaxUint32,
 	}
 	if err := wd.AddCookie(consentCookie); err != nil {
-					panic(err)
+		log.Fatalln(err)
 	}
 
 	if err := wd.Get(fmt.Sprintf("%s/sign-in", baseUrl)); err != nil {
-					panic(err)
+		log.Fatalln(err)
 	}
 	utils.ClickElementByIDAndSendKeys(wd, "form_username", Config.NationalLottery.Username)
 	utils.ClickElementByIDAndSendKeys(wd, "form_password", Config.NationalLottery.Password)
@@ -86,8 +88,8 @@ func EnterDraw() {
 
 	t := GenerateTicket()
 	switch t.Draw.Name {
-	case model.Euromillions:
-		playEuromillions(wd, t)
+	case model.EuroMillions:
+		playEuroMillions(wd, t)
 	case model.Lotto:
 		playLotto(wd, t)
 	}
@@ -97,12 +99,20 @@ func EnterDraw() {
 	}
 }
 
-func playEuromillions(wd selenium.WebDriver, t model.Ticket) {
+func playEuroMillions(wd selenium.WebDriver, t model.Ticket) {
 	if err := wd.Get(fmt.Sprintf("%s/games/euromillions?icid=-:mm:-:mdg:em:dbg:pl:co", baseUrl)); err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
-	populateInitialiser(wd, t)
+	populateCommon(wd, t)
+
+	for _, day := range Config.NationalLottery.Days {
+		if _, ok := model.EuroMillionsDays[day]; ok {
+			id := fmt.Sprintf("%s_dd_label", day)
+			utils.ClickElementByID(wd, id)
+		}
+	}
+
 	utils.ClickElementByID(wd, "euromillions_playslip_confirm")
 
 	placeOrder(wd)
@@ -110,43 +120,55 @@ func playEuromillions(wd selenium.WebDriver, t model.Ticket) {
 
 func playLotto(wd selenium.WebDriver, t model.Ticket) {
 	if err := wd.Get(fmt.Sprintf("%s/games/lotto?icid=-:mm:-:mdg:lo:dbg:pl:co", baseUrl)); err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 
-	populateInitialiser(wd, t)
+	populateCommon(wd, t)
+
+	for _, day := range Config.NationalLottery.Days {
+		if _, ok := model.LottoDays[day]; ok {
+			id := fmt.Sprintf("%s_dd_label", day)
+			utils.ClickElementByID(wd, id)
+		}
+	}
+
 	utils.ClickElementByID(wd, "lotto_playslip_confirm")
 
 	placeOrder(wd)
 }
 
-func populateInitialiser(wd selenium.WebDriver, t model.Ticket) {
+func populateCommon(wd selenium.WebDriver, t model.Ticket) {
 	utils.ClickElementByID(wd, "number_picker_initialiser_0")
 
 	for key := range t.MainNumbers {
 		utils.ClickElementByID(wd, fmt.Sprintf("pool_0_label_ball_%d", key))
 	}
-
 	for key := range t.SpecialNumbers {
 		utils.ClickElementByID(wd, fmt.Sprintf("pool_1_label_ball_%d", key))
 	}
-
 	utils.ClickElementByID(wd, "number_selection_confirm_button")
-	utils.ClickElementByID(wd, "fri_dd_label")
+
 	if _, err := wd.ExecuteScript("document.querySelector('label#weeks1',':before').click();", nil); err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 }
 
 func placeOrder(wd selenium.WebDriver) {
-	// Check cost threshold
 	elem, err := wd.FindElement(selenium.ByCSSSelector, "span#price")
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	price, err := elem.GetAttribute("data-price")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	priceFloat, _ := strconv.ParseFloat(price, 32)
-	if priceFloat > 5.0 || err != nil {
-		panic(err)
+
+	costLimitExceeded := float32(priceFloat) > Config.NationalLottery.CostLimit
+	if costLimitExceeded {
+		log.Fatalln("Configured cost limit exceeded when reviewing order, saving screenshot")
+		utils.SaveScreenshot(wd, "failure.png")
 	}
 
 	// Place order

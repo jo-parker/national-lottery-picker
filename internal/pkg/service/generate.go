@@ -39,25 +39,23 @@ func GenerateTicket() model.Ticket {
 	count, evenCount, oddCount = 0, 0, 0
 
 	t := new(model.Ticket)
-
-	t.Init()
-	switch t.Draw.Name{
-	case model.Euromillions:
-		t.InitEuromillions()
+	switch Config.NationalLottery.Draw {
+	case model.EuroMillions:
+		t.InitEuroMillions()
 	case model.Lotto:
 		t.InitLotto()
 	}
 
 	for len(t.MainNumbers) < t.Draw.NumMainBalls {
-		number := rand.Intn(10) + (count * 10)
-		if number != 0 {
-			addMainBall(number, *t)
+		ballNumber := rand.Intn(10) + (count * 10)
+		if ballNumber != 0 {
+			addMainBall(ballNumber, *t)
 		}
 	}
 
 	for len(t.SpecialNumbers) < t.Draw.NumSpecialBalls {
-		specialBallNumber := 1 + rand.Intn(12)
-		t.SpecialNumbers[specialBallNumber] = struct{}{}
+		ballNumber := 1 + rand.Intn(t.Draw.MaxSpecialBall)
+		t.SpecialNumbers[ballNumber] = struct{}{}
 	}
 
 	return *t
