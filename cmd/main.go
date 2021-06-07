@@ -23,7 +23,7 @@ func main() {
 	var config model.Config
 	err = yaml.Unmarshal(configFile, &config)
 	if err != nil {
-    log.Fatalln(err)
+		log.Fatalln(err)
 	}
 	service.Config = config
 	utils.Config = config
@@ -31,7 +31,7 @@ func main() {
 
 	logfile, err := os.OpenFile(config.App.Logfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
-			log.Fatalln(err)
+		log.Fatalln(err)
 	}
 	log.SetOutput(logfile)
 

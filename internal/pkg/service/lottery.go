@@ -138,7 +138,7 @@ func populateTickets(wd selenium.WebDriver, d *model.Draw) {
 	}
 
 	if _, err := wd.ExecuteScript("document.querySelector('label#weeks1',':before').click();", nil); err != nil {
-	  utils.SaveScreenshot(wd, "failure.png")
+		utils.SaveScreenshot(wd, "failure.png")
 		log.Fatalln(err)
 	}
 }

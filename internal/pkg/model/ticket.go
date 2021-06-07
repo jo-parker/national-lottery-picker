@@ -3,9 +3,9 @@ package model
 import ()
 
 type Ticket struct {
-	MainNumbers     map[int]struct{}
-	SpecialNumbers  map[int]struct{}
-	Game            *Game
+	MainNumbers				map[int]struct{}
+	SpecialNumbers		map[int]struct{}
+	Game							*Game
 }
 
 func NewEuroMillionsTicket() *Ticket {
