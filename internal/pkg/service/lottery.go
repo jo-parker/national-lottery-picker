@@ -36,7 +36,7 @@ func EnterDraw() {
 	}
 	defer service.Stop()
 
-	// Connect to the WebDriver instance running locally.
+	// Connect to the WebDriver instance.
 	caps := selenium.Capabilities{
 		"browserName": "chrome",
 	}
@@ -87,16 +87,14 @@ func EnterDraw() {
 	utils.ClickElementByID(wd, "login_submit_bttn")
 
 	t := GenerateTicket()
-	switch t.Draw.Name {
+	switch t.Game.Name {
 	case model.EuroMillions:
 		playEuroMillions(wd, t)
 	case model.Lotto:
 		playLotto(wd, t)
 	}
 
-	if Config.App.Debug {
-		utils.SaveScreenshot(wd, "success.png")
-	}
+	utils.SaveScreenshot(wd, "success.png")
 }
 
 func playEuroMillions(wd selenium.WebDriver, t model.Ticket) {
@@ -149,6 +147,7 @@ func populateCommon(wd selenium.WebDriver, t model.Ticket) {
 	utils.ClickElementByID(wd, "number_selection_confirm_button")
 
 	if _, err := wd.ExecuteScript("document.querySelector('label#weeks1',':before').click();", nil); err != nil {
+	  utils.SaveScreenshot(wd, "failure.png")
 		log.Fatalln(err)
 	}
 }
@@ -156,10 +155,12 @@ func populateCommon(wd selenium.WebDriver, t model.Ticket) {
 func placeOrder(wd selenium.WebDriver) {
 	elem, err := wd.FindElement(selenium.ByCSSSelector, "span#price")
 	if err != nil {
+		utils.SaveScreenshot(wd, "failure.png")
 		log.Fatalln(err)
 	}
 	price, err := elem.GetAttribute("data-price")
 	if err != nil {
+		utils.SaveScreenshot(wd, "failure.png")
 		log.Fatalln(err)
 	}
 
@@ -167,8 +168,8 @@ func placeOrder(wd selenium.WebDriver) {
 
 	costLimitExceeded := float32(priceFloat) > Config.NationalLottery.CostLimit
 	if costLimitExceeded {
-		log.Fatalln("Configured cost limit exceeded when reviewing order, saving screenshot")
 		utils.SaveScreenshot(wd, "failure.png")
+		log.Fatalln("Configured cost limit exceeded when reviewing order, saving screenshot")
 	}
 
 	// Place order

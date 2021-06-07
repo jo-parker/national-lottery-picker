@@ -3,10 +3,12 @@ package main
 import (
 	"flag"
 	"log"
+	"os"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
 	"github.com/jpparker/national-lottery-picker/internal/pkg/service"
+	"github.com/jpparker/national-lottery-picker/internal/pkg/service/utils"
 )
 
 func main() {
@@ -23,7 +25,16 @@ func main() {
 	if err != nil {
     log.Fatalln(err)
 	}
-
 	service.Config = config
+	utils.Config = config
+
+
+	logfile, err := os.OpenFile(config.App.Logfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+			log.Fatalln(err)
+	}
+	log.SetOutput(logfile)
+
+
 	service.EnterDraw()
 }

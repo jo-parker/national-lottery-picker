@@ -4,7 +4,7 @@ import ()
 
 type Config struct {
 	NationalLottery struct {
-		Draw            DrawName `yaml:"draw"`
+		Game            GameName `yaml:"game"`
 		NumberOfTickets int      `yaml:"numberOfTickets"`
 		Days            []Day 	 `yaml:"days"`
 		Username        string   `yaml:"username"`
@@ -14,7 +14,7 @@ type Config struct {
 
 	App struct {
 		Debug           bool     `yaml:"debug"`
-		LogDir 					string 	 `yaml:"logdir"`
-		ScreenshotDir   string   `yaml:"screenshotDir"
+		Logfile 				string 	 `yaml:"logfile"`
+		ScreenshotDir   string   `yaml:"screenshotDir"`
 	} `yaml:"app"`
 }

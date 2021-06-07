@@ -1,5 +1,5 @@
 national-lottery:
-  draw: "euromillions"
+  game: "euromillions"
   numberOfTickets: 1
   days: ["tue", "fri"]
   username: "username"
@@ -7,5 +7,5 @@ national-lottery:
   costLimit: 5.0
 app:
   debug: true
-  logdir: "/var/log/national-lottery-picker"
+  logfile: "/var/log/national-lottery-picker.log"
   screenshotDir: "/var/tmp"

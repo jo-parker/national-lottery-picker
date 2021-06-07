@@ -4,7 +4,10 @@ import (
 	"os"
 	"log"
 	"github.com/tebeka/selenium"
+	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
 )
+
+var Config model.Config
 
 func SaveScreenshot(wd selenium.WebDriver, path string) {
 	data, err := wd.Screenshot()
@@ -12,7 +15,7 @@ func SaveScreenshot(wd selenium.WebDriver, path string) {
 		log.Fatalln(err)
 	}
 
-	f, err := os.Create(path)
+	f, err := os.Create(Config.App.ScreenshotDir + "/" + path)
 	if err != nil {
 		log.Fatalln(err)
 	}
