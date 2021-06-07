@@ -12,7 +12,7 @@ func init() {
 	rand.Seed(time.Now().Unix())
 }
 
-func addMainBall(ballNumber int, t model.Ticket) *model.Ticket {
+func addMainBall(ballNumber int, t *model.Ticket) *model.Ticket {
 	medianBall := t.Game.NumMainBalls / 2 + 1
 
 	evenAndBelowThreshold := (ballNumber % 2 == 0) && (evenCount < medianBall)
@@ -34,14 +34,14 @@ func addMainBall(ballNumber int, t model.Ticket) *model.Ticket {
 		}
 	}
 
-	return &t
+	return t
 }
 
-func GenerateTicket() model.Ticket {
+func GenerateTicket(d *model.Draw) *model.Ticket {
 	count, evenCount, oddCount = 0, 0, 0
 
 	var t *model.Ticket
-	switch Config.NationalLottery.Game {
+	switch d.Name {
 	case model.EuroMillions:
 		t = model.NewEuroMillionsTicket()
 	case model.Lotto:
@@ -58,7 +58,7 @@ func GenerateTicket() model.Ticket {
 			ballNumber = 1 + medianBallNumber + rand.Intn(medianBallNumber)
 		}
 
-		addMainBall(ballNumber, *t)
+		addMainBall(ballNumber, t)
 	}
 
 	for len(t.SpecialNumbers) < t.Game.NumSpecialBalls {
@@ -66,5 +66,5 @@ func GenerateTicket() model.Ticket {
 		t.SpecialNumbers[ballNumber] = struct{}{}
 	}
 
-	return *t
+	return t
 }

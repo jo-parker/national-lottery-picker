@@ -35,6 +35,11 @@ func main() {
 	}
 	log.SetOutput(logfile)
 
+	for _, d := range config.NationalLottery.Draws {
+		if d.NumTickets > 4 {
+			log.Fatalln("Maximum number of 4 tickets exceeded in one order: " + string(d.NumTickets))
+		}
 
-	service.EnterDraw()
+		service.EnterDraw(&d)
+	}
 }

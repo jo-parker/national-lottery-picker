@@ -24,7 +24,7 @@ var Config model.Config
 var seleniumPath = fmt.Sprintf("%s/selenium-server-standalone-3.141.59.jar", vendorPath)
 var chromeDriverPath = fmt.Sprintf("%s/chromedriver-linux64", vendorPath)
 
-func EnterDraw() {
+func EnterDraw(draw *model.Draw) {
 	opts := []selenium.ServiceOption{
 		selenium.ChromeDriver(chromeDriverPath), // Specify the path to ChromeWebDriver in order to use Chrome.
 		selenium.Output(os.Stderr),            // Output debug information to STDERR.
@@ -86,65 +86,56 @@ func EnterDraw() {
 	utils.ClickElementByIDAndSendKeys(wd, "form_password", Config.NationalLottery.Password)
 	utils.ClickElementByID(wd, "login_submit_bttn")
 
-	t := GenerateTicket()
-	switch t.Game.Name {
+	playGame(wd, draw)
+
+	utils.SaveScreenshot(wd, fmt.Sprintf("%s_%s_success.png", draw.Name, draw.Day))
+}
+
+func playGame(wd selenium.WebDriver, d *model.Draw) {
+	var url string
+	var gameDays map[model.Day]struct{}
+
+	switch d.Name {
 	case model.EuroMillions:
-		playEuroMillions(wd, t)
+		url = fmt.Sprintf("%s/games/euromillions?icid=-:mm:-:mdg:em:dbg:pl:co", baseUrl)
+		gameDays = model.EuroMillionsDays
 	case model.Lotto:
-		playLotto(wd, t)
+		url = fmt.Sprintf("%s/games/lotto?icid=-:mm:-:mdg:lo:dbg:pl:co", baseUrl)
+		gameDays = model.LottoDays
 	}
 
-	utils.SaveScreenshot(wd, "success.png")
-}
-
-func playEuroMillions(wd selenium.WebDriver, t model.Ticket) {
-	if err := wd.Get(fmt.Sprintf("%s/games/euromillions?icid=-:mm:-:mdg:em:dbg:pl:co", baseUrl)); err != nil {
+	if err := wd.Get(url); err != nil {
 		log.Fatalln(err)
 	}
 
-	populateCommon(wd, t)
+	populateTickets(wd, d)
 
-	for _, day := range Config.NationalLottery.Days {
-		if _, ok := model.EuroMillionsDays[day]; ok {
-			id := fmt.Sprintf("%s_dd_label", day)
-			utils.ClickElementByID(wd, id)
-		}
+	if _, ok := gameDays[d.Day]; ok {
+		id := fmt.Sprintf("%s_dd_label", d.Day)
+		utils.ClickElementByID(wd, id)
+	} else {
+		log.Fatalln(d.Name + " is not played on this day, exiting.")
 	}
 
-	utils.ClickElementByID(wd, "euromillions_playslip_confirm")
+	utils.ClickElementByID(wd, fmt.Sprintf("%s_playslip_confirm", d.Name))
 
 	placeOrder(wd)
 }
 
-func playLotto(wd selenium.WebDriver, t model.Ticket) {
-	if err := wd.Get(fmt.Sprintf("%s/games/lotto?icid=-:mm:-:mdg:lo:dbg:pl:co", baseUrl)); err != nil {
-		log.Fatalln(err)
-	}
+func populateTickets(wd selenium.WebDriver, d *model.Draw) {
+	for i := 0; i < d.NumTickets; i++ {
+		utils.ClickElementByID(wd, fmt.Sprintf("number_picker_initialiser_%d", i))
 
-	populateCommon(wd, t)
+		t := GenerateTicket(d)
 
-	for _, day := range Config.NationalLottery.Days {
-		if _, ok := model.LottoDays[day]; ok {
-			id := fmt.Sprintf("%s_dd_label", day)
-			utils.ClickElementByID(wd, id)
+		for key := range t.MainNumbers {
+			utils.ClickElementByID(wd, fmt.Sprintf("pool_0_label_ball_%d", key))
 		}
+		for key := range t.SpecialNumbers {
+			utils.ClickElementByID(wd, fmt.Sprintf("pool_1_label_ball_%d", key))
+		}
+		utils.ClickElementByID(wd, "number_selection_confirm_button")
 	}
-
-	utils.ClickElementByID(wd, "lotto_playslip_confirm")
-
-	placeOrder(wd)
-}
-
-func populateCommon(wd selenium.WebDriver, t model.Ticket) {
-	utils.ClickElementByID(wd, "number_picker_initialiser_0")
-
-	for key := range t.MainNumbers {
-		utils.ClickElementByID(wd, fmt.Sprintf("pool_0_label_ball_%d", key))
-	}
-	for key := range t.SpecialNumbers {
-		utils.ClickElementByID(wd, fmt.Sprintf("pool_1_label_ball_%d", key))
-	}
-	utils.ClickElementByID(wd, "number_selection_confirm_button")
 
 	if _, err := wd.ExecuteScript("document.querySelector('label#weeks1',':before').click();", nil); err != nil {
 	  utils.SaveScreenshot(wd, "failure.png")

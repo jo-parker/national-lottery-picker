@@ -5,8 +5,7 @@ import ()
 type Config struct {
 	NationalLottery struct {
 		Game            GameName `yaml:"game"`
-		NumberOfTickets int      `yaml:"numberOfTickets"`
-		Days            []Day 	 `yaml:"days"`
+		Draws						[]Draw   `yaml:"draws"`
 		Username        string   `yaml:"username"`
 		Password        string   `yaml:"password"`
 		CostLimit 			float32  `yaml:"costLimit"`

@@ -1,10 +1,11 @@
 national-lottery:
-  game: "euromillions"
-  numberOfTickets: 1
-  days: ["tue", "fri"]
+  draws:
+    - name: "euromillions"
+      numberOfTickets: 1
+      day: "tue"
   username: "username"
   password: "password"
-  costLimit: 5.0
+  costLimit: 10.0
 app:
   debug: true
   logfile: "/var/log/national-lottery-picker.log"
