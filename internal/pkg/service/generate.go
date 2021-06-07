@@ -6,14 +6,48 @@ import (
 	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
 )
 
-var count, evenCount, oddCount int = 0, 0, 0
+var count, evenCount, oddCount, pattern int = 0, 0, 0, 1
 
 func init() {
 	rand.Seed(time.Now().Unix())
 }
 
-func addMainBall(ballNumber int, t *model.Ticket) *model.Ticket {
-	medianBall := t.Game.NumMainBalls / 2 + 1
+func GenerateTicket(d *model.Draw, p int) *model.Ticket {
+	count, evenCount, oddCount, pattern = 0, 0, 0, p
+
+	var t *model.Ticket
+	switch d.Name {
+	case model.EuroMillions:
+		t = model.NewEuroMillionsTicket()
+	case model.Lotto:
+		t = model.NewLottoTicket()
+	}
+
+	offset, remainder := patternVars(p)
+	medianBallNumber := t.Game.MaxMainBall / 2
+
+	for count < t.Game.NumMainBalls {
+		var ballNumber int
+
+		if count % 2 == remainder {
+			ballNumber = 1 + rand.Intn(medianBallNumber)
+		} else {
+			ballNumber = 1 + medianBallNumber + rand.Intn(medianBallNumber)
+		}
+
+		addMainBall(ballNumber, t, offset)
+	}
+
+	for len(t.SpecialNumbers) < t.Game.NumSpecialBalls {
+		ballNumber := 1 + rand.Intn(t.Game.MaxSpecialBall)
+		t.SpecialNumbers[ballNumber] = struct{}{}
+	}
+
+	return t
+}
+
+func addMainBall(ballNumber int, t *model.Ticket, offset int) *model.Ticket {
+	medianBall := t.Game.NumMainBalls / 2 + offset
 
 	evenAndBelowThreshold := (ballNumber % 2 == 0) && (evenCount < medianBall)
 	oddAndBelowThreshold := (ballNumber % 2 != 0) && (oddCount < t.Game.NumMainBalls - medianBall)
@@ -37,34 +71,17 @@ func addMainBall(ballNumber int, t *model.Ticket) *model.Ticket {
 	return t
 }
 
-func GenerateTicket(d *model.Draw) *model.Ticket {
-	count, evenCount, oddCount = 0, 0, 0
-
-	var t *model.Ticket
-	switch d.Name {
-	case model.EuroMillions:
-		t = model.NewEuroMillionsTicket()
-	case model.Lotto:
-		t = model.NewLottoTicket()
+func patternVars(pattern int) (o int, r int) {
+	var offset, remainder int
+	switch pattern {
+	case 0:
+		offset = 1; remainder = 0
+	case 1:
+		offset = 0; remainder = 0
+	case 2:
+		offset = 0; remainder = 1
+	case 3:
+		offset = 1; remainder = 1
 	}
-
-	medianBallNumber := t.Game.MaxMainBall / 2
-	for count < t.Game.NumMainBalls {
-		var ballNumber int
-
-		if count % 2 == 0 {
-			ballNumber = 1 + rand.Intn(medianBallNumber)
-		} else {
-			ballNumber = 1 + medianBallNumber + rand.Intn(medianBallNumber)
-		}
-
-		addMainBall(ballNumber, t)
-	}
-
-	for len(t.SpecialNumbers) < t.Game.NumSpecialBalls {
-		ballNumber := 1 + rand.Intn(t.Game.MaxSpecialBall)
-		t.SpecialNumbers[ballNumber] = struct{}{}
-	}
-
-	return t
+	return offset, remainder
 }

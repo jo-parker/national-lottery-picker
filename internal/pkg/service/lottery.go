@@ -126,7 +126,7 @@ func populateTickets(wd selenium.WebDriver, d *model.Draw) {
 	for i := 0; i < d.NumTickets; i++ {
 		utils.ClickElementByID(wd, fmt.Sprintf("number_picker_initialiser_%d", i))
 
-		t := GenerateTicket(d)
+		t := GenerateTicket(d, i)
 
 		for key := range t.MainNumbers {
 			utils.ClickElementByID(wd, fmt.Sprintf("pool_0_label_ball_%d", key))
