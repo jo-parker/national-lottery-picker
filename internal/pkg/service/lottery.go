@@ -16,15 +16,15 @@ import (
 )
 
 const (
-	vendorPath      = "/app/national-lottery-picker/vendor"
+	binPath      = "/app/national-lottery-picker/bin"
 	port            = 8080
 	baseUrl         = "https://national-lottery.co.uk/"
 )
 
 var Config config.Config
 
-var seleniumPath = fmt.Sprintf("%s/selenium-server-standalone-3.141.59.jar", vendorPath)
-var chromeDriverPath = fmt.Sprintf("%s/chromedriver-linux64", vendorPath)
+var seleniumPath = fmt.Sprintf("%s/selenium-server-standalone-3.141.59.jar", binPath)
+var chromeDriverPath = fmt.Sprintf("%s/chromedriver-linux64", binPath)
 
 func EnterDraw(draw *model.Draw) error {
 	opts := []selenium.ServiceOption{
