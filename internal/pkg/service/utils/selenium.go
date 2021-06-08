@@ -2,7 +2,7 @@ package utils
 
 import (
 	"os"
-	"fmt"
+	"log"
 	"github.com/tebeka/selenium"
 	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
 )
@@ -12,12 +12,12 @@ var Config model.Config
 func SaveScreenshot(wd selenium.WebDriver, path string) {
 	data, err := wd.Screenshot()
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 
 	f, err := os.Create(Config.App.ScreenshotDir + "/" + path)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 
 	f.Write(data)

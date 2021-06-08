@@ -8,6 +8,7 @@ national-lottery:
       day: "fri"
   username: "username"
   password: "password"
+  cron: "0 0 12 * * 2"
   costLimit: 10.0
 app:
   debug: true

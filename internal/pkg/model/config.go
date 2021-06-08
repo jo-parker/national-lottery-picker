@@ -9,6 +9,7 @@ type Config struct {
 		Username			string		`yaml:"username"`
 		Password			string		`yaml:"password"`
 		CostLimit			float32		`yaml:"costLimit"`
+		Cron					string		`yaml:"cron"`
 	}	`yaml:"national-lottery"`
 
 	App struct {
