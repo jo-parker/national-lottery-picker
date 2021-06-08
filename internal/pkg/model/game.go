@@ -17,18 +17,6 @@ const (
 	Lotto GameName = "lotto"
 )
 
-type Day string
-
-const (
-	Monday Day = "mon"
-	Tuesday Day = "tue"
-	Wednesday Day = "wed"
-	Thursday Day = "thu"
-	Friday Day = "fri"
-	Saturday Day = "sat"
-	Sunday Day = "sun"
-)
-
 var EuroMillionsDays = map[Day]struct{}{
 	Tuesday: struct{}{},
 	Friday: struct{}{},
