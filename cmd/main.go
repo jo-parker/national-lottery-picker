@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"os"
+	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
@@ -37,9 +38,13 @@ func main() {
 
 	for _, d := range config.NationalLottery.Draws {
 		if d.NumTickets > 4 {
-			log.Fatalln("Maximum number of 4 tickets exceeded in one order: " + string(d.NumTickets))
+			fmt.Errorf("Maximum number of 4 tickets exceeded in one order: " + string(d.NumTickets))
+			continue
 		}
 
-		service.EnterDraw(&d)
+		if err := service.EnterDraw(&d); err != nil {
+			fmt.Errorf("Entering draw failed: ", err)
+			continue
+		}
 	}
 }

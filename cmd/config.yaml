@@ -3,6 +3,9 @@ national-lottery:
     - name: "euromillions"
       numberOfTickets: 1
       day: "tue"
+    - name: "euromillions"
+      numberOfTickets: 1
+      day: "fri"
   username: "username"
   password: "password"
   costLimit: 10.0

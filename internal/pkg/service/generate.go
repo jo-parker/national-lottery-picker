@@ -23,7 +23,7 @@ func GenerateTicket(d *model.Draw, p int) *model.Ticket {
 		t = model.NewLottoTicket()
 	}
 
-	offset, remainder := patternVars(p)
+	offset, remainder := patternVars()
 	medianBallNumber := t.Game.MaxMainBall / 2
 
 	for count < t.Game.NumMainBalls {
@@ -71,7 +71,9 @@ func addMainBall(ballNumber int, t *model.Ticket, offset int) *model.Ticket {
 	return t
 }
 
-func patternVars(pattern int) (o int, r int) {
+func patternVars() (o int, r int) {
+	pattern := rand.Intn(4)
+
 	var offset, remainder int
 	switch pattern {
 	case 0:

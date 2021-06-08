@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"errors"
 	"strconv"
 	"github.com/tebeka/selenium"
 	"github.com/tebeka/selenium/chrome"
@@ -24,7 +25,7 @@ var Config model.Config
 var seleniumPath = fmt.Sprintf("%s/selenium-server-standalone-3.141.59.jar", vendorPath)
 var chromeDriverPath = fmt.Sprintf("%s/chromedriver-linux64", vendorPath)
 
-func EnterDraw(draw *model.Draw) {
+func EnterDraw(draw *model.Draw) error {
 	opts := []selenium.ServiceOption{
 		selenium.ChromeDriver(chromeDriverPath), // Specify the path to ChromeWebDriver in order to use Chrome.
 		selenium.Output(os.Stderr),            // Output debug information to STDERR.
@@ -82,16 +83,27 @@ func EnterDraw(draw *model.Draw) {
 	if err := wd.Get(fmt.Sprintf("%s/sign-in", baseUrl)); err != nil {
 		log.Fatalln(err)
 	}
-	utils.ClickElementByIDAndSendKeys(wd, "form_username", Config.NationalLottery.Username)
-	utils.ClickElementByIDAndSendKeys(wd, "form_password", Config.NationalLottery.Password)
-	utils.ClickElementByID(wd, "login_submit_bttn")
 
-	playGame(wd, draw)
+	if err := utils.ClickElementByIDAndSendKeys(wd, "form_username", Config.NationalLottery.Username); err != nil {
+		return err
+	}
+	if err := utils.ClickElementByIDAndSendKeys(wd, "form_password", Config.NationalLottery.Password); err != nil {
+		return err
+	}
+	if err := utils.ClickElementByID(wd, "login_submit_bttn"); err != nil {
+		return err
+	}
+
+	if err := playGame(wd, draw); err != nil {
+		return err
+	}
 
 	utils.SaveScreenshot(wd, fmt.Sprintf("%s_%s_success.png", draw.Name, draw.Day))
+
+	return nil
 }
 
-func playGame(wd selenium.WebDriver, d *model.Draw) {
+func playGame(wd selenium.WebDriver, d *model.Draw) error {
 	var url string
 	var gameDays map[model.Day]struct{}
 
@@ -105,54 +117,71 @@ func playGame(wd selenium.WebDriver, d *model.Draw) {
 	}
 
 	if err := wd.Get(url); err != nil {
-		log.Fatalln(err)
+		return err
 	}
 
 	populateTickets(wd, d)
 
-	if _, ok := gameDays[d.Day]; ok {
+	if _, exists := gameDays[d.Day]; exists {
 		id := fmt.Sprintf("%s_dd_label", d.Day)
 		utils.ClickElementByID(wd, id)
 	} else {
-		log.Fatalln(d.Name + " is not played on this day, exiting.")
+		return errors.New(fmt.Sprintf("%s is not played on this day, exiting.", d.Name))
 	}
 
-	utils.ClickElementByID(wd, fmt.Sprintf("%s_playslip_confirm", d.Name))
+	if err := utils.ClickElementByID(wd, fmt.Sprintf("%s_playslip_confirm", d.Name)); err != nil {
+		return err
+	}
 
-	placeOrder(wd)
+	if err := placeOrder(wd); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func populateTickets(wd selenium.WebDriver, d *model.Draw) {
+func populateTickets(wd selenium.WebDriver, d *model.Draw) error {
 	for i := 0; i < d.NumTickets; i++ {
-		utils.ClickElementByID(wd, fmt.Sprintf("number_picker_initialiser_%d", i))
+		if err := utils.ClickElementByID(wd, fmt.Sprintf("number_picker_initialiser_%d", i)); err != nil {
+			return err
+		}
 
 		t := GenerateTicket(d, i)
 
 		for key := range t.MainNumbers {
-			utils.ClickElementByID(wd, fmt.Sprintf("pool_0_label_ball_%d", key))
+			if err := utils.ClickElementByID(wd, fmt.Sprintf("pool_0_label_ball_%d", key)); err != nil {
+				return err
+			}
 		}
 		for key := range t.SpecialNumbers {
-			utils.ClickElementByID(wd, fmt.Sprintf("pool_1_label_ball_%d", key))
+			if err := utils.ClickElementByID(wd, fmt.Sprintf("pool_1_label_ball_%d", key)); err != nil {
+				return err
+			}
 		}
-		utils.ClickElementByID(wd, "number_selection_confirm_button")
+
+		if err := utils.ClickElementByID(wd, "number_selection_confirm_button"); err != nil {
+			return err
+		}
 	}
 
 	if _, err := wd.ExecuteScript("document.querySelector('label#weeks1',':before').click();", nil); err != nil {
 		utils.SaveScreenshot(wd, "failure.png")
-		log.Fatalln(err)
+		return err
 	}
+
+	return nil
 }
 
-func placeOrder(wd selenium.WebDriver) {
+func placeOrder(wd selenium.WebDriver) error {
 	elem, err := wd.FindElement(selenium.ByCSSSelector, "span#price")
 	if err != nil {
 		utils.SaveScreenshot(wd, "failure.png")
-		log.Fatalln(err)
+		return err
 	}
 	price, err := elem.GetAttribute("data-price")
 	if err != nil {
 		utils.SaveScreenshot(wd, "failure.png")
-		log.Fatalln(err)
+		return err
 	}
 
 	priceFloat, _ := strconv.ParseFloat(price, 32)
@@ -160,11 +189,15 @@ func placeOrder(wd selenium.WebDriver) {
 	costLimitExceeded := float32(priceFloat) > Config.NationalLottery.CostLimit
 	if costLimitExceeded {
 		utils.SaveScreenshot(wd, "failure.png")
-		log.Fatalln("Configured cost limit exceeded when reviewing order, saving screenshot")
+		return errors.New("Configured cost limit exceeded when reviewing order, saving screenshot")
 	}
 
 	// Place order
 	if !Config.App.Debug {
-		utils.ClickElementByID(wd, "confirm")
+		if err := utils.ClickElementByID(wd, "confirm"); err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
