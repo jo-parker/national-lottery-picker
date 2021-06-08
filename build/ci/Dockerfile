@@ -17,4 +17,7 @@ RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.d
 
 COPY . .
 
+RUN go test ./... -v -count=1
+RUN go build -o bin cmd
+
 ENTRYPOINT [ "./build/ci/startup.sh" ]

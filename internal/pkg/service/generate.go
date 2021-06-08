@@ -12,8 +12,8 @@ func init() {
 	rand.Seed(time.Now().Unix())
 }
 
-func GenerateTicket(d *model.Draw, p int) *model.Ticket {
-	count, evenCount, oddCount, pattern = 0, 0, 0, p
+func GenerateTicket(d *model.Draw) *model.Ticket {
+	count, evenCount, oddCount = 0, 0, 0
 
 	var t *model.Ticket
 	switch d.Name {

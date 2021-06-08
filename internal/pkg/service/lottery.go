@@ -12,6 +12,7 @@ import (
 	slog "github.com/tebeka/selenium/log"
 	"github.com/jpparker/national-lottery-picker/internal/pkg/service/utils"
 	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
+	"github.com/jpparker/national-lottery-picker/internal/pkg/config"
 )
 
 const (
@@ -20,7 +21,7 @@ const (
 	baseUrl         = "https://national-lottery.co.uk/"
 )
 
-var Config model.Config
+var Config config.Config
 
 var seleniumPath = fmt.Sprintf("%s/selenium-server-standalone-3.141.59.jar", vendorPath)
 var chromeDriverPath = fmt.Sprintf("%s/chromedriver-linux64", vendorPath)
@@ -146,7 +147,7 @@ func populateTickets(wd selenium.WebDriver, d *model.Draw) error {
 			return err
 		}
 
-		t := GenerateTicket(d, i)
+		t := GenerateTicket(d)
 
 		for key := range t.MainNumbers {
 			if err := utils.ClickElementByID(wd, fmt.Sprintf("pool_0_label_ball_%d", key)); err != nil {
@@ -163,7 +164,7 @@ func populateTickets(wd selenium.WebDriver, d *model.Draw) error {
 			return err
 		}
 
-		log.Println(fmt.Sprintf("Ticket confirmed: %s, %s", t.MainNumbers, t.SpecialNumbers))
+		log.Println(fmt.Sprintf("Ticket confirmed: %d, %d", t.MainNumbers, t.SpecialNumbers))
 	}
 
 	if _, err := wd.ExecuteScript("document.querySelector('label#weeks1',':before').click();", nil); err != nil {

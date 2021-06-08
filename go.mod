@@ -1,11 +1,10 @@
 module github.com/jpparker/national-lottery-picker
 
-go 1.12
-
-replace example.com/greetings => ../greetings
+go 1.16
 
 require (
-	github.com/serge1peshcoff/selenium-go-conditions v0.0.0-20170824121757-5afbdb74596b
+	github.com/robfig/cron v1.2.0
+	github.com/stretchr/testify v1.7.0
 	github.com/tebeka/selenium v0.9.9
-	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4 // indirect
+	gopkg.in/yaml.v2 v2.4.0
 )
