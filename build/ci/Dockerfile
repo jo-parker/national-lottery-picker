@@ -19,7 +19,7 @@ COPY . .
 RUN go build -o bin . && mv bin/* /usr/local/bin/.
 RUN mv build/ci/startup.sh /app/. \
   && mkdir /etc/national-lottery-picker \
-  && mv build/ci/config.yaml /etc/national-lottery-picker/. \
+  && mv build/ci/config.yml /etc/national-lottery-picker/. \
   && rm -rf /app/national-lottery-picker
 
 ENTRYPOINT [ "/app/startup.sh" ]

@@ -6,7 +6,7 @@ import (
 	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
 )
 
-var count, evenCount, oddCount, pattern int = 0, 0, 0, 1
+var count, evenCount, oddCount int = 0, 0, 0
 
 func init() {
 	rand.Seed(time.Now().Unix())
