@@ -1,0 +1,15 @@
+national-lottery:
+  draws:
+    - name: "euromillions"
+      numberOfTickets: 1
+      day: "tue"
+    - name: "euromillions"
+      numberOfTickets: 1
+      day: "fri"
+  cron: "0 0 12 * * 2"
+  costLimit: 10.0
+app:
+  debug: true
+  logfile: "/var/log/national-lottery-picker.log"
+  screenshotDir: "/var/tmp"
+  binDir: "/usr/local/bin"

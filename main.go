@@ -10,11 +10,16 @@ import (
 	"github.com/robfig/cron"
 	"github.com/jpparker/national-lottery-picker/internal/pkg/service"
 	"github.com/jpparker/national-lottery-picker/internal/pkg/service/utils"
-	"github.com/jpparker/national-lottery-picker/internal/pkg/config"
+	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
+	"github.com/tebeka/selenium"
 )
+
+var Config model.Config
 
 func main() {
 	configPtr := flag.String("c", "/etc/national-lottery-picker/config.yml", "Configuration file path")
+	usernamePtr := flag.String("u", "username", "Username for the National Lottery account")
+	passwordPtr := flag.String("p", "password", "Password for the National Lottery account")
 	flag.Parse()
 
 	configFile, err := ioutil.ReadFile(*configPtr)
@@ -22,37 +27,65 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	var config config.Config
-	err = yaml.Unmarshal(configFile, &config)
+	err = yaml.Unmarshal(configFile, &Config)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	service.Config = config
-	utils.Config = config
 
-	logfile, err := os.OpenFile(config.App.Logfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	service.Config = Config; utils.Config = Config
+	service.Username = *usernamePtr
+	service.Password = *passwordPtr
+
+	logfile, err := os.OpenFile(Config.App.Logfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	log.SetOutput(logfile)
 
+	if err := initSelenium(); err != nil {
+		log.Fatalln(err)
+	}
+
 	c := cron.New()
-	c.AddFunc(config.NationalLottery.Cron, func() {
-		log.Println("Entering draws...")
-		for _, d := range config.NationalLottery.Draws {
-			log.Println(fmt.Sprintf("Entering %s %s draw...", d.Name, d.Day))
-
-			if d.NumTickets > 4 {
-				log.Printf("Maximum number of 4 tickets exceeded in one order: %d", d.NumTickets)
-				continue
-			}
-
-			if err := service.EnterDraw(&d); err != nil {
-				log.Printf("Entering draw failed: %s", err)
-				continue
-			}
-		}
-		log.Println("Run complete.")
+	c.AddFunc(Config.NationalLottery.Cron, func() {
+		enterDraws()
 	})
 	c.Run()
+}
+
+func initSelenium() error {
+	seleniumPath := fmt.Sprintf("%s/selenium-server-standalone-3.141.59.jar", Config.App.BinDir)
+	chromeDriverPath := fmt.Sprintf("%s/chromedriver-linux64", Config.App.BinDir)
+
+	opts := []selenium.ServiceOption{
+		selenium.ChromeDriver(chromeDriverPath),
+		selenium.Output(os.Stderr),
+	}
+
+	_, err := selenium.NewSeleniumService(seleniumPath, service.Port, opts...)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func enterDraws() {
+	log.Println("Entering draws...")
+
+	for _, d := range Config.NationalLottery.Draws {
+		log.Println(fmt.Sprintf("Entering %s %s draw...", d.Name, d.Day))
+
+		if d.NumTickets > 4 {
+			log.Printf("Maximum number of 4 tickets exceeded in one order: %d", d.NumTickets)
+			continue
+		}
+
+		if err := service.EnterDraw(&d); err != nil {
+			log.Printf("Entering draw failed: %s", err)
+			continue
+		}
+	}
+
+	log.Println("Run complete.")
 }

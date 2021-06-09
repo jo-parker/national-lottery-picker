@@ -1,13 +1,11 @@
-package config
+package model
 
-import (
-	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
-)
+import ()
 
 type Config struct {
 	NationalLottery struct {
-		Game					model.GameName	`yaml:"game"`
-		Draws					[]model.Draw		`yaml:"draws"`
+		Game					GameName	`yaml:"game"`
+		Draws					[]Draw		`yaml:"draws"`
 		Username			string		`yaml:"username"`
 		Password			string		`yaml:"password"`
 		CostLimit			float32		`yaml:"costLimit"`
@@ -18,5 +16,6 @@ type Config struct {
 		Debug						bool		`yaml:"debug"`
 		Logfile					string	`yaml:"logfile"`
 		ScreenshotDir		string	`yaml:"screenshotDir"`
+		BinDir					string	`yaml:"binDir"`
 	}	`yaml:"app"`
 }

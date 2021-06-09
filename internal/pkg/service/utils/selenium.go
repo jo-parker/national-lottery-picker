@@ -4,10 +4,10 @@ import (
 	"os"
 	"log"
 	"github.com/tebeka/selenium"
-	"github.com/jpparker/national-lottery-picker/internal/pkg/config"
+	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
 )
 
-var Config config.Config
+var Config model.Config
 
 func SaveScreenshot(wd selenium.WebDriver, path string) {
 	data, err := wd.Screenshot()

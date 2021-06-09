@@ -1,0 +1,8 @@
+version: "3"
+services:
+  national-lottery-picker:
+    build:
+      context: ../
+      dockerfile: ./test/Dockerfile
+    image: national-lottery-picker-test:latest
+    privileged: true

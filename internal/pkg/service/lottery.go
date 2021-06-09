@@ -1,7 +1,6 @@
 package service
 
 import (
-	"os"
 	"fmt"
 	"log"
 	"math"
@@ -12,31 +11,17 @@ import (
 	slog "github.com/tebeka/selenium/log"
 	"github.com/jpparker/national-lottery-picker/internal/pkg/service/utils"
 	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
-	"github.com/jpparker/national-lottery-picker/internal/pkg/config"
 )
 
 const (
-	binPath      = "/app/national-lottery-picker/bin"
-	port            = 8080
-	baseUrl         = "https://national-lottery.co.uk/"
+	Port			= 8080
+	baseUrl		= "https://national-lottery.co.uk/"
 )
 
-var Config config.Config
-
-var seleniumPath = fmt.Sprintf("%s/selenium-server-standalone-3.141.59.jar", binPath)
-var chromeDriverPath = fmt.Sprintf("%s/chromedriver-linux64", binPath)
+var Config model.Config
+var Username, Password string
 
 func EnterDraw(draw *model.Draw) error {
-	opts := []selenium.ServiceOption{
-		selenium.ChromeDriver(chromeDriverPath), // Specify the path to ChromeWebDriver in order to use Chrome.
-		selenium.Output(os.Stderr),            // Output debug information to STDERR.
-	}
-
-	service, err := selenium.NewSeleniumService(seleniumPath, port, opts...)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	defer service.Stop()
 
 	// Connect to the WebDriver instance.
 	caps := selenium.Capabilities{
@@ -60,7 +45,7 @@ func EnterDraw(draw *model.Draw) error {
 	caps.AddLogging(loggingCaps)
 	caps.AddChrome(chromeCaps)
 
-	wd, err := selenium.NewRemote(caps, fmt.Sprintf("http://localhost:%d/wd/hub", port))
+	wd, err := selenium.NewRemote(caps, fmt.Sprintf("http://localhost:%d/wd/hub", Port))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -85,10 +70,10 @@ func EnterDraw(draw *model.Draw) error {
 		log.Fatalln(err)
 	}
 
-	if err := utils.ClickElementByIDAndSendKeys(wd, "form_username", Config.NationalLottery.Username); err != nil {
+	if err := utils.ClickElementByIDAndSendKeys(wd, "form_username", Username); err != nil {
 		return err
 	}
-	if err := utils.ClickElementByIDAndSendKeys(wd, "form_password", Config.NationalLottery.Password); err != nil {
+	if err := utils.ClickElementByIDAndSendKeys(wd, "form_password", Password); err != nil {
 		return err
 	}
 	if err := utils.ClickElementByID(wd, "login_submit_bttn"); err != nil {

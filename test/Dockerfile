@@ -5,7 +5,7 @@ WORKDIR /app/national-lottery-picker
 ENV TZ=Europe/London
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-RUN apt clean all && apt-get update && apt-get install golang wget xvfb default-jre -y
+RUN apt clean all && apt-get update && apt-get install golang git wget vim xvfb default-jre -y
 
 RUN wget -c https://www.cisco.com/security/pki/certs/ciscoumbrellaroot.pem \
   -O /usr/local/share/ca-certificates/ciscoumbrellaroot.crt \
@@ -16,10 +16,4 @@ RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.d
 
 COPY . .
 
-RUN go build -o bin . && mv bin/* /usr/local/bin/.
-RUN mv build/ci/startup.sh /app/. \
-  && mkdir /etc/national-lottery-picker \
-  && mv build/ci/config.yaml /etc/national-lottery-picker/. \
-  && rm -rf /app/national-lottery-picker
-
-ENTRYPOINT [ "/app/startup.sh" ]
+ENTRYPOINT [ "./test/startup.sh" ]
