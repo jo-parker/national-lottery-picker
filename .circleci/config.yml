@@ -38,28 +38,29 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
-          name: Build image and start container
+          name: Build image and push to Docker Hub
           command: |
             set -x
-            TAG="${CIRCLE_TAG}.${CIRCLE_BUILD_NUM}"
             cd build/ci
+            TAG="${CIRCLE_TAG}.${CIRCLE_BUILD_NUM}"
             sed -i 's/$TAG/'"$TAG"'/g' docker-compose.yml
-            docker-compose up -d
-      - run:
-          name: Push Docker image
-          command: |
+            docker-compose build
             docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
             docker push jpparker/national-lottery-picker:$TAG
 
 workflows:
+  version: 2
   test-build-deploy:
     jobs:
-      - test
+      - test:
+          filters:
+            tags:
+              only: /.*/
       - build:
           requires:
             - test
           filters:
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)*/
             branches:
               ignore: /.*/
-            tags:
-              only: /^v[0-9]+(\.[0-9]+)*$/
