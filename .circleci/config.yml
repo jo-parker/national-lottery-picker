@@ -46,7 +46,9 @@ jobs:
             sed -i 's/$TAG/'"$TAG"'/g' docker-compose.yml
             docker-compose build
             docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
+            docker tag jpparker/national-lottery-picker:$TAG jpparker/national-lottery-picker:latest
             docker push jpparker/national-lottery-picker:$TAG
+            docker push jpparker/national-lottery-picker:latest
 
 workflows:
   version: 2
