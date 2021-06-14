@@ -21,6 +21,7 @@ var EuroMillionsDays = map[Day]struct{}{
 	Tuesday: struct{}{},
 	Friday: struct{}{},
 }
+
 var LottoDays = map[Day]struct{}{
 	Wednesday: struct{}{},
 	Saturday: struct{}{},

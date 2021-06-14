@@ -14,19 +14,21 @@ func TestMain(m *testing.M) {
 		Name: model.EuroMillions,
 		NumTickets: 1,
 		Day: model.Tuesday,
+		Strategy: model.OddEven,
 	}
 
 	lottoDraw = model.Draw {
 		Name: model.Lotto,
 		NumTickets: 1,
 		Day: model.Wednesday,
+		Strategy: model.OddEven,
 	}
 
 	os.Exit(m.Run())
 }
 
 func TestGenerateTicketReturnsEuroMillionsTicket(t *testing.T) {
-	ticket := GenerateTicket(&euroMillionsDraw)
+	ticket, _ := GenerateTicket(&euroMillionsDraw)
 
 	medianBall := ticket.Game.NumMainBalls / 2
 	evenCount, highCount := getBallNumberDistribution(ticket)
@@ -39,7 +41,7 @@ func TestGenerateTicketReturnsEuroMillionsTicket(t *testing.T) {
 }
 
 func TestGenerateTicketReturnsLottoTicket(t *testing.T) {
-	ticket := GenerateTicket(&lottoDraw)
+	ticket, _ := GenerateTicket(&lottoDraw)
 
 	medianBall := ticket.Game.NumMainBalls / 2
 	evenCount, highCount := getBallNumberDistribution(ticket)
@@ -51,7 +53,7 @@ func TestGenerateTicketReturnsLottoTicket(t *testing.T) {
 	assert.True(t, highCount == medianBall || highCount == medianBall + 1)
 }
 
-func getBallNumberDistribution(t *model.Ticket) (evenCount int, highCount int){
+func getBallNumberDistribution(t *model.BaseTicket) (evenCount int, highCount int){
 	medianBallNumber := t.Game.MaxMainBall / 2
 
 	var ec, hc int = 0, 0

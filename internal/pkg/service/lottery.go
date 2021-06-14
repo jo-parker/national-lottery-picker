@@ -132,7 +132,10 @@ func populateTickets(wd selenium.WebDriver, d *model.Draw) error {
 			return err
 		}
 
-		t := GenerateTicket(d)
+		t, err := GenerateTicket(d)
+		if err != nil {
+			return err
+		}
 
 		for key := range t.MainNumbers {
 			if err := utils.ClickElementByID(wd, fmt.Sprintf("pool_0_label_ball_%d", key)); err != nil {
