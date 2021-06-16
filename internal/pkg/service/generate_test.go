@@ -3,6 +3,7 @@ package service
 import (
 	"testing"
 	"os"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
 )

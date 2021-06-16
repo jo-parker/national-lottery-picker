@@ -3,6 +3,7 @@ package utils
 import (
 	"os"
 	"log"
+
 	"github.com/tebeka/selenium"
 	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
 )

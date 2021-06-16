@@ -40,12 +40,6 @@ func (t *BaseTicket) InitLottoTicket() {
 	}
 }
 
-
-type Ticket interface {
-	SetBallNumbers()
-	patternVars()		(int, int)
-}
-
 type OddEvenTicket struct {
 	*BaseTicket
 }

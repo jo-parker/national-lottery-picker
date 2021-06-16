@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"errors"
+
 	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
 )
 

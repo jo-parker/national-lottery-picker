@@ -6,6 +6,7 @@ import (
 	"math"
 	"errors"
 	"strconv"
+
 	"github.com/tebeka/selenium"
 	"github.com/tebeka/selenium/chrome"
 	slog "github.com/tebeka/selenium/log"
