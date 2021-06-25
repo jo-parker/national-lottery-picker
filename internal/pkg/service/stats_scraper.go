@@ -12,7 +12,19 @@ import (
 
 var gameName model.GameName
 
-func HotColdScraper(gn model.GameName) (*map[NumberType]HotColdNumbers, error) {
+const (
+	Hot NumberType = "hot"
+	Cold NumberType = "cold"
+)
+
+type HotColdNumbers struct {
+	Main			[]int
+	Special		[]int
+}
+
+type NumberType string
+
+func HotColdScraper(gn model.GameName) (map[NumberType]HotColdNumbers, error) {
 	gameName = gn
 	url := fmt.Sprintf("https://www.national-lottery.com/%s/statistics", gameName)
 
@@ -35,7 +47,7 @@ func HotColdScraper(gn model.GameName) (*map[NumberType]HotColdNumbers, error) {
 	numbers[Hot] = findNumbers(doc, Hot)
 	numbers[Cold] = findNumbers(doc, Cold)
 
-	return &numbers, nil
+	return numbers, nil
 }
 
 func findNumbers(doc *goquery.Document, numType NumberType) HotColdNumbers {
@@ -66,15 +78,3 @@ func findNumbers(doc *goquery.Document, numType NumberType) HotColdNumbers {
 
 	return numbers
 }
-
-type HotColdNumbers struct {
-	Main			[]int
-	Special		[]int
-}
-
-type NumberType string
-
-const (
-	Hot NumberType = "hot"
-	Cold NumberType = "cold"
-)

@@ -4,8 +4,8 @@ import ()
 
 type Draw struct {
 	Name					GameName	`yaml:"name"`
-	NumTickets		int				`yaml:"numberOfTickets"`
-	Day						Day				`yaml:"day"`
+	NumTickets		int	`yaml:"numberOfTickets"`
+	Day						Day	`yaml:"day"`
 	Strategy			Strategy	`yaml:"strategy"`
 }
 
@@ -24,6 +24,6 @@ const (
 type Strategy string
 
 const (
-	OddEven Strategy = "odd_even"
-	HotCold Strategy = "hot_cold"
+	OddEven	Strategy = "odd_even"
+	HotCold	Strategy = "hot_cold"
 )

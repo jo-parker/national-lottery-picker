@@ -21,11 +21,10 @@ const (
 
 var Config model.Config
 var Username, Password string
+var caps selenium.Capabilities
 
-func EnterDraw(draw *model.Draw) error {
-
-	// Connect to the WebDriver instance.
-	caps := selenium.Capabilities{
+func init() {
+	caps = selenium.Capabilities{
 		"browserName": "chrome",
 	}
 	loggingCaps := slog.Capabilities {
@@ -45,7 +44,9 @@ func EnterDraw(draw *model.Draw) error {
 	}
 	caps.AddLogging(loggingCaps)
 	caps.AddChrome(chromeCaps)
+}
 
+func EnterDraw(draw *model.Draw) error {
 	wd, err := selenium.NewRemote(caps, fmt.Sprintf("http://localhost:%d/wd/hub", Port))
 	if err != nil {
 		log.Fatalln(err)
@@ -185,7 +186,7 @@ func placeOrder(wd selenium.WebDriver) error {
 	}
 
 	// Place order
-	if !Config.App.Debug {
+	if !Config.App.Test {
 		if err := utils.ClickElementByID(wd, "confirm"); err != nil {
 			return err
 		}

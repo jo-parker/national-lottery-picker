@@ -28,7 +28,7 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func TestGenerateTicketReturnsEuroMillionsTicket(t *testing.T) {
+func TestGenerateTicketEuroMillions(t *testing.T) {
 	ticket, _ := GenerateTicket(&euroMillionsDraw)
 
 	medianBall := ticket.Game.NumMainBalls / 2
@@ -41,7 +41,7 @@ func TestGenerateTicketReturnsEuroMillionsTicket(t *testing.T) {
 	assert.True(t, highCount == medianBall || highCount == medianBall + 1)
 }
 
-func TestGenerateTicketReturnsLottoTicket(t *testing.T) {
+func TestGenerateTicketLotto(t *testing.T) {
 	ticket, _ := GenerateTicket(&lottoDraw)
 
 	medianBall := ticket.Game.NumMainBalls / 2

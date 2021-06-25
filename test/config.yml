@@ -6,7 +6,7 @@ national-lottery:
   cron: "0 */2 * * * *"
   costLimit: 10.0
 app:
-  debug: true
+  test: true
   logfile: "/var/log/national-lottery-picker.log"
   screenshotDir: "/var/tmp"
   binDir: "/app/national-lottery-picker/bin"

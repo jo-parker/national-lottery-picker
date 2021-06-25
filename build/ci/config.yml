@@ -3,9 +3,11 @@ national-lottery:
     - name: "euromillions"
       numberOfTickets: 1
       day: "tue"
+      strategy: "odd_even"
     - name: "euromillions"
       numberOfTickets: 1
       day: "fri"
+      strategy: "odd_even"
   cron: "0 0 12 * * 2"
   costLimit: 10.0
 app:

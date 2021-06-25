@@ -3,11 +3,11 @@ package model
 import ()
 
 type Game struct {
-	Name								GameName
-	NumMainBalls				int
-	NumSpecialBalls			int
-	MaxMainBall					int
-	MaxSpecialBall			int
+	Name							GameName
+	NumMainBalls			int
+	NumSpecialBalls		int
+	MaxMainBall				int
+	MaxSpecialBall		int
 }
 
 type GameName string
