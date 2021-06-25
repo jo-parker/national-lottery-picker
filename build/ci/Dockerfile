@@ -16,7 +16,7 @@ RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.d
 
 COPY . .
 
-RUN go build -o bin . && mv bin/* /usr/local/bin/.
+RUN go build -o bin/national-lottery-picker cmd/main.go && mv bin/* /usr/local/bin/.
 RUN mv build/ci/startup.sh /app/. \
   && mkdir /etc/national-lottery-picker \
   && mv build/ci/config.yml /etc/national-lottery-picker/. \

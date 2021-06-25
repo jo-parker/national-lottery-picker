@@ -154,7 +154,7 @@ func populateTickets(wd selenium.WebDriver, d *model.Draw) error {
 			return err
 		}
 
-		log.Println(fmt.Sprintf("Ticket confirmed: %d, %d", t.MainNumbers, t.SpecialNumbers))
+		log.Println(fmt.Sprintf("[INFO] Ticket confirmed: %d, %d", t.MainNumbers, t.SpecialNumbers))
 	}
 
 	if _, err := wd.ExecuteScript("document.querySelector('label#weeks1',':before').click();", nil); err != nil {

@@ -71,21 +71,21 @@ func initSelenium() error {
 }
 
 func enterDraws() {
-	log.Println("Entering draws...")
+	log.Println("[INFO] Entering draws...")
 
 	for _, d := range Config.NationalLottery.Draws {
-		log.Println(fmt.Sprintf("Entering %s %s draw...", d.Name, d.Day))
+		log.Println(fmt.Sprintf("[INFO] Entering %s %s draw...", d.Name, d.Day))
 
 		if d.NumTickets > 4 {
-			log.Printf("Maximum number of 4 tickets exceeded in one order: %d", d.NumTickets)
+			log.Printf("[ERROR] Maximum number of 4 tickets exceeded in one order: %d", d.NumTickets)
 			continue
 		}
 
 		if err := service.EnterDraw(&d); err != nil {
-			log.Printf("Entering draw failed: %s", err)
+			log.Printf("[ERROR] Entering draw failed: %s", err)
 			continue
 		}
 	}
 
-	log.Println("Run complete.")
+	log.Println("[INFO] Run complete.")
 }
