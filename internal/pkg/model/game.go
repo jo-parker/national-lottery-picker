@@ -1,28 +1,26 @@
 package model
 
-import ()
-
 type Game struct {
-	Name							GameName
-	NumMainBalls			int
-	NumSpecialBalls		int
-	MaxMainBall				int
-	MaxSpecialBall		int
+	Name            GameName
+	NumMainBalls    int
+	NumSpecialBalls int
+	MaxMainBall     int
+	MaxSpecialBall  int
 }
 
 type GameName string
 
 const (
 	EuroMillions GameName = "euromillions"
-	Lotto GameName = "lotto"
+	Lotto        GameName = "lotto"
 )
 
 var EuroMillionsDays = map[Day]struct{}{
-	Tuesday: struct{}{},
-	Friday: struct{}{},
+	Tuesday: {},
+	Friday:  {},
 }
 
 var LottoDays = map[Day]struct{}{
-	Wednesday: struct{}{},
-	Saturday: struct{}{},
+	Wednesday: {},
+	Saturday:  {},
 }
