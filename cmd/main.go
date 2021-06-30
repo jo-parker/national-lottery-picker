@@ -2,16 +2,17 @@ package main
 
 import (
 	"flag"
-	"log"
 	"fmt"
-	"os"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"github.com/robfig/cron"
+	"log"
+	"os"
+
+	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
 	"github.com/jpparker/national-lottery-picker/internal/pkg/service"
 	"github.com/jpparker/national-lottery-picker/internal/pkg/service/utils"
-	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
+	"github.com/robfig/cron"
 	"github.com/tebeka/selenium"
+	"gopkg.in/yaml.v2"
 )
 
 var Config model.Config
@@ -32,7 +33,8 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	service.Config = Config; utils.Config = Config
+	service.Config = Config
+	utils.Config = Config
 	service.Username = *usernamePtr
 	service.Password = *passwordPtr
 
@@ -81,7 +83,7 @@ func enterDraws() {
 			continue
 		}
 
-		if err := service.EnterDraw(&d); err != nil {
+		if err := service.EnterDraw(d); err != nil {
 			log.Printf("[ERROR] Entering draw failed: %s", err)
 			continue
 		}

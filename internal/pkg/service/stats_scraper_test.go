@@ -3,26 +3,58 @@ package service
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestHotColdScraperLotto(t *testing.T) {
-	numbers, _ := HotColdScraper(model.Lotto)
+func TestHotColdScraper(t *testing.T) {
+	var mainCount, specialCount int
 
-	assert.Equal(t, len(numbers[Hot].Main), 6)
-	assert.Equal(t, len(numbers[Cold].Main), 6)
+	type args struct {
+		gn model.GameName
+	}
 
-	assert.Equal(t, len(numbers[Hot].Special), 0)
-	assert.Equal(t, len(numbers[Cold].Special), 0)
-}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "EuroMillions scraper",
+			args: args{
+				model.EuroMillions,
+			},
+			wantErr: false,
+		},
+		{
+			name: "Lotto scraper",
+			args: args{
+				model.Lotto,
+			},
+			wantErr: false,
+		},
+	}
 
-func TestHotColdScraperEuroMillions(t *testing.T) {
-	numbers, _ := HotColdScraper(model.EuroMillions)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := HotColdScraper(tt.args.gn)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("HotColdScraper() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			switch tt.args.gn {
+			case model.EuroMillions:
+				mainCount = 5
+				specialCount = 2
+			case model.Lotto:
+				mainCount = 6
+				specialCount = 0
+			}
 
-	assert.Equal(t, len(numbers[Hot].Main), 5)
-	assert.Equal(t, len(numbers[Cold].Main), 5)
-
-	assert.Equal(t, len(numbers[Hot].Special), 2)
-	assert.Equal(t, len(numbers[Cold].Special), 2)
+			assert.Equal(t, len(got[Hot].Main), mainCount)
+			assert.Equal(t, len(got[Cold].Main), mainCount)
+			assert.Equal(t, len(got[Hot].Special), specialCount)
+			assert.Equal(t, len(got[Cold].Special), specialCount)
+		})
+	}
 }

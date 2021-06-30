@@ -1,10 +1,10 @@
 package service
 
 import (
-	"net/http"
-	"fmt"
-	"strconv"
 	"errors"
+	"fmt"
+	"net/http"
+	"strconv"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
@@ -13,13 +13,13 @@ import (
 var gameName model.GameName
 
 const (
-	Hot NumberType = "hot"
+	Hot  NumberType = "hot"
 	Cold NumberType = "cold"
 )
 
 type HotColdNumbers struct {
-	Main			[]int
-	Special		[]int
+	Main    []int
+	Special []int
 }
 
 type NumberType string
@@ -51,9 +51,9 @@ func HotColdScraper(gn model.GameName) (map[NumberType]HotColdNumbers, error) {
 }
 
 func findNumbers(doc *goquery.Document, numType NumberType) HotColdNumbers {
-	numbers := HotColdNumbers {
-		Main: 		[]int{},
-		Special: 	[]int{},
+	numbers := HotColdNumbers{
+		Main:    []int{},
+		Special: []int{},
 	}
 	selector := fmt.Sprintf("h2:contains('%s Numbers') ~ table", numType)
 

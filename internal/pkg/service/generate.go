@@ -1,13 +1,13 @@
 package service
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 
 	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
 )
 
-func GenerateTicket(d *model.Draw) (*model.BaseTicket, error) {
+func GenerateTicket(d model.Draw) (*model.BaseTicket, error) {
 	base := new(model.BaseTicket)
 
 	switch d.Name {

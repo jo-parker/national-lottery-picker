@@ -1,22 +1,22 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"math"
-	"errors"
 	"strconv"
 
+	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
+	"github.com/jpparker/national-lottery-picker/internal/pkg/service/utils"
 	"github.com/tebeka/selenium"
 	"github.com/tebeka/selenium/chrome"
 	slog "github.com/tebeka/selenium/log"
-	"github.com/jpparker/national-lottery-picker/internal/pkg/service/utils"
-	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
 )
 
 const (
-	Port			= 8080
-	baseUrl		= "https://national-lottery.co.uk/"
+	Port    = 8080
+	baseUrl = "https://national-lottery.co.uk/"
 )
 
 var Config model.Config
@@ -27,15 +27,15 @@ func init() {
 	caps = selenium.Capabilities{
 		"browserName": "chrome",
 	}
-	loggingCaps := slog.Capabilities {
-		slog.Server: slog.Info,
-		slog.Browser: slog.Info,
-		slog.Client: slog.Info,
-		slog.Driver: slog.Info,
+	loggingCaps := slog.Capabilities{
+		slog.Server:      slog.Info,
+		slog.Browser:     slog.Info,
+		slog.Client:      slog.Info,
+		slog.Driver:      slog.Info,
 		slog.Performance: slog.Off,
-		slog.Profiler: slog.Off,
+		slog.Profiler:    slog.Off,
 	}
-	chromeCaps := chrome.Capabilities {
+	chromeCaps := chrome.Capabilities{
 		Args: []string{
 			"--headless",
 			"--no-sandbox",
@@ -46,7 +46,7 @@ func init() {
 	caps.AddChrome(chromeCaps)
 }
 
-func EnterDraw(draw *model.Draw) error {
+func EnterDraw(draw model.Draw) error {
 	wd, err := selenium.NewRemote(caps, fmt.Sprintf("http://localhost:%d/wd/hub", Port))
 	if err != nil {
 		log.Fatalln(err)
@@ -57,11 +57,11 @@ func EnterDraw(draw *model.Draw) error {
 		log.Fatalln(err)
 	}
 
-	consentCookie := &selenium.Cookie {
-		Name: "CONSENTMGR",
-		Value: "c1:0%7Cc3:0%7Cc9:0%7Cc11:0%7Cts:1622708767594%7Cconsent:false",
+	consentCookie := &selenium.Cookie{
+		Name:   "CONSENTMGR",
+		Value:  "c1:0%7Cc3:0%7Cc9:0%7Cc11:0%7Cts:1622708767594%7Cconsent:false",
 		Domain: ".national-lottery.co.uk",
-		Path: "/",
+		Path:   "/",
 		Expiry: math.MaxUint32,
 	}
 	if err := wd.AddCookie(consentCookie); err != nil {
@@ -91,7 +91,7 @@ func EnterDraw(draw *model.Draw) error {
 	return nil
 }
 
-func playGame(wd selenium.WebDriver, d *model.Draw) error {
+func playGame(wd selenium.WebDriver, d model.Draw) error {
 	var url string
 	var gameDays map[model.Day]struct{}
 
@@ -128,7 +128,7 @@ func playGame(wd selenium.WebDriver, d *model.Draw) error {
 	return nil
 }
 
-func populateTickets(wd selenium.WebDriver, d *model.Draw) error {
+func populateTickets(wd selenium.WebDriver, d model.Draw) error {
 	for i := 0; i < d.NumTickets; i++ {
 		if err := utils.ClickElementByID(wd, fmt.Sprintf("number_picker_initialiser_%d", i)); err != nil {
 			return err
@@ -185,7 +185,6 @@ func placeOrder(wd selenium.WebDriver) error {
 		return errors.New("Configured cost limit exceeded when reviewing order, saving screenshot")
 	}
 
-	// Place order
 	if !Config.App.Test {
 		if err := utils.ClickElementByID(wd, "confirm"); err != nil {
 			return err

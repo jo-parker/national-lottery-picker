@@ -1,11 +1,11 @@
 package utils
 
 import (
-	"os"
 	"log"
+	"os"
 
-	"github.com/tebeka/selenium"
 	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
+	"github.com/tebeka/selenium"
 )
 
 var Config model.Config
