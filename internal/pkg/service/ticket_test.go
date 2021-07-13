@@ -1,9 +1,11 @@
-package model
+package service
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
 )
 
 var (
@@ -43,10 +45,10 @@ func TestOddEvenTicket_SetBallNumbers(t *testing.T) {
 			tr.SetBallNumbers()
 
 			switch tr.Game.Name {
-			case EuroMillions:
+			case model.EuroMillions:
 				assert.Equal(t, len(tr.MainNumbers), 5)
 				assert.Equal(t, len(tr.SpecialNumbers), 2)
-			case Lotto:
+			case model.Lotto:
 				assert.Equal(t, len(tr.MainNumbers), 6)
 				assert.Equal(t, len(tr.SpecialNumbers), 0)
 			}

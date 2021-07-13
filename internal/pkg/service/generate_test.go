@@ -96,7 +96,7 @@ func TestGenerateTicket(t *testing.T) {
 	}
 }
 
-func getBallNumberDistribution(t *model.BaseTicket) (evenCount int, highCount int) {
+func getBallNumberDistribution(t *BaseTicket) (evenCount int, highCount int) {
 	medianBallNumber := t.Game.MaxMainBall / 2
 
 	var ec, hc int = 0, 0

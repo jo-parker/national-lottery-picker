@@ -1,11 +1,9 @@
 package service
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"math"
-	"strconv"
 
 	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
 	"github.com/jpparker/national-lottery-picker/internal/pkg/service/utils"
@@ -14,13 +12,19 @@ import (
 	slog "github.com/tebeka/selenium/log"
 )
 
+//go:generate mockgen -source lottery.go -destination mocks/lottery.go
+type Lottery interface {
+	EnterDraw(draw model.Draw, credentials model.Credentials) error
+}
+
+type LotteryImpl struct{}
+
 const (
 	Port    = 8080
 	baseUrl = "https://national-lottery.co.uk/"
 )
 
 var Config model.Config
-var Username, Password string
 var caps selenium.Capabilities
 
 func init() {
@@ -46,7 +50,7 @@ func init() {
 	caps.AddChrome(chromeCaps)
 }
 
-func EnterDraw(draw model.Draw) error {
+func (impl *LotteryImpl) EnterDraw(draw model.Draw, credentials model.Credentials) error {
 	wd, err := selenium.NewRemote(caps, fmt.Sprintf("http://localhost:%d/wd/hub", Port))
 	if err != nil {
 		log.Fatalln(err)
@@ -72,10 +76,10 @@ func EnterDraw(draw model.Draw) error {
 		log.Fatalln(err)
 	}
 
-	if err := utils.ClickElementByIDAndSendKeys(wd, "form_username", Username); err != nil {
+	if err := utils.ClickElementByIDAndSendKeys(wd, "form_username", credentials.Username); err != nil {
 		return err
 	}
-	if err := utils.ClickElementByIDAndSendKeys(wd, "form_password", Password); err != nil {
+	if err := utils.ClickElementByIDAndSendKeys(wd, "form_password", credentials.Password); err != nil {
 		return err
 	}
 	if err := utils.ClickElementByID(wd, "login_submit_bttn"); err != nil {
@@ -114,7 +118,7 @@ func playGame(wd selenium.WebDriver, d model.Draw) error {
 		id := fmt.Sprintf("%s_dd_label", d.Day)
 		utils.ClickElementByID(wd, id)
 	} else {
-		return errors.New(fmt.Sprintf("%s is not played on this day, exiting.", d.Name))
+		return fmt.Errorf("%s is not played on this day, exiting", d.Name)
 	}
 
 	if err := utils.ClickElementByID(wd, fmt.Sprintf("%s_playslip_confirm", d.Name)); err != nil {
@@ -166,25 +170,6 @@ func populateTickets(wd selenium.WebDriver, d model.Draw) error {
 }
 
 func placeOrder(wd selenium.WebDriver) error {
-	elem, err := wd.FindElement(selenium.ByCSSSelector, "span#price")
-	if err != nil {
-		utils.SaveScreenshot(wd, "failure.png")
-		return err
-	}
-	price, err := elem.GetAttribute("data-price")
-	if err != nil {
-		utils.SaveScreenshot(wd, "failure.png")
-		return err
-	}
-
-	priceFloat, _ := strconv.ParseFloat(price, 32)
-
-	costLimitExceeded := float32(priceFloat) > Config.NationalLottery.CostLimit
-	if costLimitExceeded {
-		utils.SaveScreenshot(wd, "failure.png")
-		return errors.New("Configured cost limit exceeded when reviewing order, saving screenshot")
-	}
-
 	if !Config.App.Test {
 		if err := utils.ClickElementByID(wd, "confirm"); err != nil {
 			return err

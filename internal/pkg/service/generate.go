@@ -1,14 +1,13 @@
 package service
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
 )
 
-func GenerateTicket(d model.Draw) (*model.BaseTicket, error) {
-	base := new(model.BaseTicket)
+func GenerateTicket(d model.Draw) (*BaseTicket, error) {
+	base := new(BaseTicket)
 
 	switch d.Name {
 	case model.EuroMillions:
@@ -16,22 +15,22 @@ func GenerateTicket(d model.Draw) (*model.BaseTicket, error) {
 	case model.Lotto:
 		base.InitLottoTicket()
 	default:
-		return nil, errors.New(fmt.Sprintf("Unknown draw %v, exiting...", d.Name))
+		return nil, fmt.Errorf("unknown draw %v, exiting", d.Name)
 	}
 
 	switch d.Strategy {
 	case model.OddEven:
-		t := new(model.OddEvenTicket)
+		t := new(OddEvenTicket)
 
 		t.BaseTicket = base
 		t.SetBallNumbers()
 	case model.HotCold:
-		t := new(model.HotColdTicket)
+		t := new(HotColdTicket)
 
 		t.BaseTicket = base
 		t.SetBallNumbers()
 	default:
-		return nil, errors.New(fmt.Sprintf("Unknown strategy %v, exiting...", d.Strategy))
+		return nil, fmt.Errorf("unknown strategy %v, exiting", d.Strategy)
 	}
 
 	return base, nil
