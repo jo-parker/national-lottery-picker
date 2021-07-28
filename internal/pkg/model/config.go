@@ -2,7 +2,7 @@ package model
 
 type Config struct {
 	App struct {
-		Test          bool   `yaml:"test"`
+		Debug         bool   `yaml:"debug"`
 		Logfile       string `yaml:"logfile"`
 		ScreenshotDir string `yaml:"screenshotDir"`
 		BinDir        string `yaml:"binDir"`

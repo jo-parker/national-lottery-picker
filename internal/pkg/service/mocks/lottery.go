@@ -34,16 +34,16 @@ func (m *MockLottery) EXPECT() *MockLotteryMockRecorder {
 	return m.recorder
 }
 
-// EnterDraw mocks base method.
-func (m *MockLottery) EnterDraw(draw model.Draw, credentials model.Credentials) error {
+// EnterDraws mocks base method.
+func (m *MockLottery) EnterDraws(draws []model.Draw, credentials model.Credentials) []error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "EnterDraw", draw, credentials)
-	ret0, _ := ret[0].(error)
+	ret := m.ctrl.Call(m, "EnterDraws", draws, credentials)
+	ret0, _ := ret[0].([]error)
 	return ret0
 }
 
-// EnterDraw indicates an expected call of EnterDraw.
-func (mr *MockLotteryMockRecorder) EnterDraw(draw, credentials interface{}) *gomock.Call {
+// EnterDraws indicates an expected call of EnterDraws.
+func (mr *MockLotteryMockRecorder) EnterDraws(draws, credentials interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnterDraw", reflect.TypeOf((*MockLottery)(nil).EnterDraw), draw, credentials)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnterDraws", reflect.TypeOf((*MockLottery)(nil).EnterDraws), draws, credentials)
 }

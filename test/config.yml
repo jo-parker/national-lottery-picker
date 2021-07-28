@@ -1,10 +1,3 @@
-national-lottery:
-  draws:
-    - name: "euromillions"
-      numberOfTickets: 2
-      day: "tue"
-  cron: "0 */2 * * * *"
-  costLimit: 10.0
 app:
   test: true
   logfile: "/var/log/national-lottery-picker.log"

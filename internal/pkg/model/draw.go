@@ -1,10 +1,10 @@
 package model
 
 type Draw struct {
-	Name       GameName `yaml:"name"`
-	NumTickets int      `yaml:"numberOfTickets"`
-	Day        Day      `yaml:"day"`
-	Strategy   Strategy `yaml:"strategy"`
+	Name       GameName `json:"name"`
+	NumTickets int      `json:"numberOfTickets"`
+	Day        Day      `json:"day"`
+	Strategy   Strategy `json:"strategy"`
 }
 
 type Day string

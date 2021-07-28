@@ -22,4 +22,4 @@ RUN mv build/ci/startup.sh /app/. \
   && mv build/ci/config.yml /etc/national-lottery-picker/. \
   && rm -rf /app/national-lottery-picker
 
-ENTRYPOINT [ "/app/startup.sh" ]
+CMD [ "/usr/local/bin/national-lottery-picker" ]

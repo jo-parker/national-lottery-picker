@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"strings"
 
 	"github.com/jpparker/national-lottery-picker/internal/pkg/model"
 	"github.com/jpparker/national-lottery-picker/internal/pkg/service/utils"
@@ -14,7 +15,7 @@ import (
 
 //go:generate mockgen -source lottery.go -destination mocks/lottery.go
 type Lottery interface {
-	EnterDraw(draw model.Draw, credentials model.Credentials) error
+	EnterDraws(draws []model.Draw, credentials model.Credentials) []error
 }
 
 type LotteryImpl struct{}
@@ -50,7 +51,9 @@ func init() {
 	caps.AddChrome(chromeCaps)
 }
 
-func (impl *LotteryImpl) EnterDraw(draw model.Draw, credentials model.Credentials) error {
+func (impl *LotteryImpl) EnterDraws(draws []model.Draw, credentials model.Credentials) []error {
+	var errors []error
+
 	wd, err := selenium.NewRemote(caps, fmt.Sprintf("http://localhost:%d/wd/hub", Port))
 	if err != nil {
 		log.Fatalln(err)
@@ -72,62 +75,79 @@ func (impl *LotteryImpl) EnterDraw(draw model.Draw, credentials model.Credential
 		log.Fatalln(err)
 	}
 
+	// sign-in user
 	if err := wd.Get(fmt.Sprintf("%s/sign-in", baseUrl)); err != nil {
 		log.Fatalln(err)
 	}
-
 	if err := utils.ClickElementByIDAndSendKeys(wd, "form_username", credentials.Username); err != nil {
-		return err
+		return append(errors, err)
 	}
 	if err := utils.ClickElementByIDAndSendKeys(wd, "form_password", credentials.Password); err != nil {
-		return err
+		return append(errors, err)
 	}
 	if err := utils.ClickElementByID(wd, "login_submit_bttn"); err != nil {
-		return err
+		return append(errors, err)
+	}
+	if url, _ := wd.CurrentURL(); strings.Contains(url, "login_error=1") {
+		err := fmt.Errorf("login credentials for %s are incorrect", credentials.Username)
+		return append(errors, err)
 	}
 
-	if err := playGame(wd, draw); err != nil {
-		return err
+	for _, d := range draws {
+		if d.NumTickets > 4 {
+			errors = append(errors, fmt.Errorf("maximum number of 4 tickets exceeded in one order: %d", d.NumTickets))
+			continue
+		}
+
+		if err := enterDraw(wd, d, credentials); err != nil {
+			errors = append(errors, fmt.Errorf("entering draw failed: %s", err))
+			continue
+		}
 	}
 
-	utils.SaveScreenshot(wd, fmt.Sprintf("%s_%s_success.png", draw.Name, draw.Day))
-
-	return nil
+	return errors
 }
 
-func playGame(wd selenium.WebDriver, d model.Draw) error {
+func enterDraw(wd selenium.WebDriver, draw model.Draw, credentials model.Credentials) error {
 	var url string
 	var gameDays map[model.Day]struct{}
 
-	switch d.Name {
+	switch draw.Name {
 	case model.EuroMillions:
 		url = fmt.Sprintf("%s/games/euromillions?icid=-:mm:-:mdg:em:dbg:pl:co", baseUrl)
 		gameDays = model.EuroMillionsDays
 	case model.Lotto:
 		url = fmt.Sprintf("%s/games/lotto?icid=-:mm:-:mdg:lo:dbg:pl:co", baseUrl)
 		gameDays = model.LottoDays
+	default:
+		return fmt.Errorf("unknown game '%s'", draw.Name)
 	}
 
 	if err := wd.Get(url); err != nil {
 		return err
 	}
 
-	populateTickets(wd, d)
+	populateTickets(wd, draw)
 
-	if _, exists := gameDays[d.Day]; exists {
-		id := fmt.Sprintf("%s_dd_label", d.Day)
+	if _, exists := gameDays[draw.Day]; exists {
+		id := fmt.Sprintf("%s_dd_label", draw.Day)
 		utils.ClickElementByID(wd, id)
 	} else {
-		return fmt.Errorf("%s is not played on this day, exiting", d.Name)
+		return fmt.Errorf("%s is not played on this day, exiting", draw.Name)
 	}
 
-	if err := utils.ClickElementByID(wd, fmt.Sprintf("%s_playslip_confirm", d.Name)); err != nil {
+	if err := utils.ClickElementByID(wd, fmt.Sprintf("%s_playslip_confirm", draw.Name)); err != nil {
 		return err
 	}
 
-	if err := placeOrder(wd); err != nil {
-		return err
+	// place order if debug disabled
+	if !Config.App.Debug {
+		if err := utils.ClickElementByID(wd, "confirm"); err != nil {
+			return err
+		}
 	}
+
+	utils.SaveScreenshot(wd, fmt.Sprintf("%s_%s_success.png", draw.Name, draw.Day))
 
 	return nil
 }
@@ -164,16 +184,6 @@ func populateTickets(wd selenium.WebDriver, d model.Draw) error {
 	if _, err := wd.ExecuteScript("document.querySelector('label#weeks1',':before').click();", nil); err != nil {
 		utils.SaveScreenshot(wd, "failure.png")
 		return err
-	}
-
-	return nil
-}
-
-func placeOrder(wd selenium.WebDriver) error {
-	if !Config.App.Test {
-		if err := utils.ClickElementByID(wd, "confirm"); err != nil {
-			return err
-		}
 	}
 
 	return nil

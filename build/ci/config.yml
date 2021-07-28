@@ -1,17 +1,4 @@
-national-lottery:
-  draws:
-    - name: "euromillions"
-      numberOfTickets: 1
-      day: "tue"
-      strategy: "odd_even"
-    - name: "euromillions"
-      numberOfTickets: 1
-      day: "fri"
-      strategy: "odd_even"
-  cron: "0 0 12 * * 2"
-  costLimit: 10.0
 app:
   debug: false
-  logfile: "/var/log/national-lottery-picker.log"
-  screenshotDir: "/var/tmp"
-  binDir: "/usr/local/bin"
+  screenshotDir: "./"
+  binDir: "./bin"
