@@ -4,5 +4,5 @@ services:
     build:
       context: ../../
       dockerfile: ./build/ci/Dockerfile
-    image: jpparker/national-lottery-picker:$TAG
+    image: nl-picker:latest
     privileged: true
